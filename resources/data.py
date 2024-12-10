@@ -20,5 +20,9 @@ class Data:
         # print(solution)
         return solution
 
-# instance= Data().get_instance("C1_2_1.txt")
-# print(instance["node_coord"])
+    def get_vehicle_data(self):
+        # here get data for all vehicles, for the start only one vehicle
+        pass
+
+instance= Data().get_instance("C1_2_1.txt")
+# print(instance['edge_weight'][0][38] + instance['edge_weight'][38][150] + instance['edge_weight'][150][22] + instance['edge_weight'][22][0])
