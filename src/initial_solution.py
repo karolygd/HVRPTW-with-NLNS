@@ -1,21 +1,15 @@
 # Here is where I code the savings algorithm
-# import numpy as np
-# from resources.data import Data
+from src.evaluation import EvaluateMerge
 
-# print(len(instance['edge_weight']))
-
-def savings(problem_instance, evaluation): #can add -> solution: to sate that the return type is a solution
+def savings(problem_instance): #can add -> solution: to sate that the return type is a solution
     """
-    Performs the parallel version of the Clark & Wright Savings Heuristic (Clark & Wright, 1964) to construct a
-    solution. First, the savings value  is calculated for all pair of customers (s_ij = c_i0 + c_0j - c_ij).
-    Then the solution is initialized by creating a route for each customer, going from
-    the depot to the customer and immediately back to the depot.
-    Starting with the largest savings s_ij, we test whether the route r_i ending with node i and r_j beginning with
-    node j can be merged, and if possible, they are indeed merged. Then we continue with the largest savings value
-    until no more merges are possible.
+    Based on the Clark & Wright Savings Heuristic (Clark & Wright, 1964) to construct an initial solution.
+    The savings algorithm calculates savings for all customer pairs using \( s_{ij} = c_{i0} + c_{0j} - c_{ij} \).
+    Initially, each customer has a separate route starting and ending at the depot.
+    The algorithm iteratively merges routes with the largest savings, combining routes ending at \( i \)
+    and starting at \( j \) if feasible, until no more merges are possible.
 
     :param problem_instance: corresponding problem instance to solve
-    :param evaluation: function to calculate total cost (and feasibility)
     :return solution: check
     """
     capacity = problem_instance['capacity'] # this is in the case of only one car
@@ -91,4 +85,77 @@ def savings(problem_instance, evaluation): #can add -> solution: to sate that th
             i = i + 1
     return routes
 
+def savings_hvrp():
+    """
+    This savings heuristic is adapted to assign the best vehicle to each route
+    :return:
+    """
+    pass
+
+def savings_vrptw(problem_instance):
+    """
+    This savings heuristic is adapted to respect the time windows for each node
+    :return:
+    """
+    capacity = problem_instance['capacity'] # this is in the case of only one car
+    nodes = problem_instance['service_time'] # what we get here doesn't matter, just add variable nodes for readability
+    distance_edges = problem_instance['edge_weight']
+    route_id = [-1]
+    routes = []
+    route_demand = []
+
+    # 1. Create a route per vertex and get required information
+    for node in range(1, len(nodes)):
+        # create a single route for each node, leaving and coming back to the depot 0
+        route = [0, node, 0]
+        route_id.append(node - 1) # keep track of the nodes added. node -1 to start at 0, 0 is the depot
+        routes.append(route)
+        route_demand.append(int(problem_instance['demand'][node]))
+
+    # 2. Calculate all savings between routes
+    savings = []
+    for c_i in range(1, len(nodes)): # since zero is the depot we start at 1
+        for c_j in range(1, len(nodes)):
+            if c_i == c_j:
+                pass
+            else:
+                d_i0 = distance_edges[c_i][0]
+                d_0j = distance_edges[0][c_j]
+                d_ij = distance_edges[c_i][c_j]
+                s_ij = d_i0 + d_0j - d_ij
+                savings.append((s_ij, c_i, c_j))
+    savings.sort(reverse=True)
+
+    # 3. Check if routes can be concatenated according to different criteria
+    for s_ij, c_i, c_j in savings:
+        if s_ij <= 0:
+            break
+
+        route_id_c_i = route_id[c_i]
+        route_id_c_j = route_id[c_j]
+
+        # a. Check that routes are not the same, that they are not empty, and that they can be concatenated.
+        if route_id_c_i != route_id_c_j and len(routes[route_id_c_i]) > 0 and len(routes[route_id_c_j]) > 0 \
+            and routes[route_id_c_i][-2] == c_i and routes[route_id_c_j][1] == c_j:
+            # b. Check that capacity constraints are met: time_window, vehicle capacity, etc.
+            if route_demand[route_id_c_i] + route_demand[route_id_c_j] > capacity and \
+               not EvaluateMerge(routes[route_id_c_i], routes[route_id_c_j]).valid_time_windows():
+                pass
+            else:
+                # 4. Merge routes:
+                r_i = routes[route_id_c_i][:-1]             # r_i = [..,4,5] ([:-1] to remove the depot at the end)
+                r_j = routes[route_id_c_j][1:]              # r_j = [8,9,..] ([1:] to remove the depot at the start)
+                routes[route_id_c_i] = r_i + r_j            # new r_i = [..,4,5,8,9,..]
+                routes[route_id_c_j] = []                   # new r_j = []
+
+                route_demand[route_id_c_i] = route_demand[route_id_c_i] + route_demand[route_id_c_j]
+
+    # 5. Remove empty routes from routes
+    i = 0
+    while i < len(routes):
+        if len(routes[i]) == 0:
+            del routes[i]
+        else:
+            i = i + 1
+    return routes
 
