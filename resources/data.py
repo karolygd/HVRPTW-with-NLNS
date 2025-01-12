@@ -1,5 +1,6 @@
 import os
 import vrplib
+import pandas as pd
 
 class Data:
     def __init__(self):
@@ -28,22 +29,11 @@ class Data:
         # print(solution)
         return solution
 
-    def get_vehicle_data(self):
-        # here get data for all vehicles, for the start only one vehicle
-        pass
+    def get_vehicle_data(self) -> pd.DataFrame:
+        file_path_instance = os.path.join(self.base_dir, "instances", "vehicles.csv")
+        df = pd.read_csv(file_path_instance)
+        return df
 
-instance= Data().get_instance("C1_2_1.txt")
-# print(instance['time_window'][195:])
-# print(instance['earliest_arrival'][195:])
-# print(instance['time_window'][0], instance['time_window'][0][0], instance['time_window'][0][1])
-# print(instance['edge_weight'])
-# print(instance['edge_weight'][0][38] + instance['edge_weight'][38][150] + instance['edge_weight'][150][22] + instance['edge_weight'][22][0])
-
-# # check that time windows and service_times are ok=
-# for node in range(0, len(instance['time_window'])):
-#     if instance['time_window'][node][1] - instance['time_window'][node][0] <= instance['service_time'][node]:
-#         print('Incorrect service time window for node', node, ' with service time: ', instance['service_time'][node],
-#               'and time window: ', instance['time_window'][node])
-
+# instance= Data().get_instance("C1_2_1.txt")
+# print(instance)
 # solution= Data().get_solution("C1_2_1.sol")
-# print(solution)
