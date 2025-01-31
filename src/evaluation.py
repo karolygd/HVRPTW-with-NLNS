@@ -185,3 +185,5 @@ class EvaluateMerge:
             if arrival_at_j > self.vertices[node_k].latest_start:
                 return False
         return True
+
+# print(EvaluateRoute([0, 164, 66, 147, 160, 47, 91, 70, 0]).route_total_duration())
