@@ -25,7 +25,7 @@ print(initial_solution)
 print("")
 
 # --- Solve the alns: define hyperparameters ---
-alns_ = alns(initial_solution, number_of_iterations=45)
+alns_ = alns(initial_solution, number_of_iterations=5)
 # print(alns_)
 
 # all_routes_cost = 0

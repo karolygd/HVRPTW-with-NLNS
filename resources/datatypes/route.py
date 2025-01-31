@@ -26,7 +26,7 @@ class Route:
         If the vehicle_id is not given, it will assign a random vehicle that suffices the route's demand.
         """
         if vehicle_id:
-            self.vehicle = vehicle_id # Assign user-specified vehicle
+            self.vehicle = int(vehicle_id) # Assign user-specified vehicle
         else:
             self.vehicle = EvaluateRoute(self.nodes).assign_random_vehicle_to_route()
 
@@ -53,6 +53,7 @@ class Route:
         else:
             raise ValueError(f"Node {node_id} not found in the route.")
 
+    # TODO: check if this is used:
     def nodes_arrival_times(self):
         """
         :return: Returns a list of the arrival time to each customer in the route
@@ -60,7 +61,10 @@ class Route:
         return EvaluateRoute(self.nodes).get_arrival_times()
 
     def calculate_total_cost(self):
-        self.cost = EvaluateRoute(self.nodes).total_distance() # TODO: substitute for a cost function - dependent on car?
+        """
+        The cost can only be calculated when the vehicle has been assigned.
+        """
+        self.cost = EvaluateRoute(self.nodes).calculate_total_cost(self.vehicle) # TODO: substitute for a cost function - dependent on car?
 
     def calculate_insertion_cost(self, node_to_insert: int, position: int):
         return EvaluateRoute(self.nodes).calculate_insertion_cost(node_to_insert, position)

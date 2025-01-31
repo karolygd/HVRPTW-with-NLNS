@@ -67,6 +67,10 @@ class EvaluateRoute:
                  self.edges[(prev_node,next_node)].distance)
         return delta
 
+    def calculate_total_cost(self, vehicle_id: int):
+        cost = self.total_distance() + self.vehicles[vehicle_id].cost
+        return cost
+
     def get_arrival_times(self) -> dict:
         """
         :return: Returns a list of the arrival time to each customer in the route, excludes leaving the depot at time 0
@@ -122,7 +126,7 @@ class EvaluateRoute:
         # select a random car from the ones which capacity is more or enough to satisfy the route demand
         route_demand = self.total_demand()
         feasible_vehicles = [vehicle.id for vehicle in self.vehicles if vehicle.capacity >= route_demand]
-        return random.choice(feasible_vehicles)
+        return int(random.choice(feasible_vehicles))
 
     # def assign_best_cost_vehicle_to_route(self):
 
