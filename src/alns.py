@@ -4,7 +4,8 @@ import random
 import math
 from src.operators.remove_operators import RemoveOperators
 from src.operators.insertion_operators import InsertionOperators
-from src.alns_components.adaptive_layer import AdaptiveLayer
+from src.alns_components.adaptive_layer import AdaptiveOperatorSelector
+from src.alns_components.adaptive_removal import AdaptiveRemovalManager
 
 
 def alns(initial_solution, number_of_iterations: int):
@@ -20,8 +21,8 @@ def alns(initial_solution, number_of_iterations: int):
     # keeping track of visited solutions:
     accepted_solutions = set()
 
-    temperature = 10  # TODO: check how to define the initial temp
-    cooling_rate = 0.05     # TODO: check how to define the cooling rate
+    temperature = 1000  # TODO: check how to define the initial temp
+    cooling_rate = 0.03     # from 0 to 1 # TODO: check how to define the cooling rate
 
     remove_operators = RemoveOperators()
     insert_operators = InsertionOperators()
@@ -29,32 +30,38 @@ def alns(initial_solution, number_of_iterations: int):
     remove_operators_list = [remove_operators.random_customers(),
                         remove_operators.randomly_selected_sequence_within_concatenated_routes(),
                         remove_operators.a_posteriori_score_related_customers(),
-                        remove_operators.worst_cost_customers()]
+                        remove_operators.worst_cost_customers(),
+                        remove_operators.random_route()]
 
     # --- select the pool of insertion operators:
     insert_operators_list = [insert_operators.random_order_best_position(),
                         insert_operators.customer_with_highest_position_regret_best_position(k=2),
                         insert_operators.customer_with_highest_position_regret_best_position(k=3)]
 
-    adl = AdaptiveLayer(remove_operators_list, insert_operators_list)
-    # adl.adapt_operator_weights() # to initialize the weights of all operators at 1
+    number_of_customers = len(remove_operators.vertices)
+    print("- number_of_customers: ", number_of_customers)
+    aos = AdaptiveOperatorSelector(remove_operators_list, insert_operators_list)
+    adaptive_removal = AdaptiveRemovalManager(number_of_customers)
+
+    # aos.adapt_operator_weights() # to initialize the weights of all operators at 1
 
     for i in range(1, number_of_iterations+1):
-        number_of_vertices_to_remove = 5 #adjust this
-        print("iteration: ", i)
+        number_of_vertices_to_remove = adaptive_removal.get_removal_size()
+        print("* iteration #", i,)# "customer removed: ", number_of_vertices_to_remove)
+        # print("iteration: ", i)
         # --- set insert and remove operators:
-        remove_operator, insert_operator = adl.roulete_wheel() # roulette_wheel(remove_operators, insert_operators)
-        print(f"selected remove operator: {remove_operator.name}, selected insert operator: {insert_operator.name}")
-        # print(f"selected remove operator: {remove_operator.__name__}, selected insert operator: {insert_operator.__name__}") #not working __name__
+        remove_operator, insert_operator = aos.roulete_wheel() # roulette_wheel(remove_operators, insert_operators)
+        # print(f"selected remove operator: {remove_operator.name}, selected insert operator: {insert_operator.name}")
 
-        removed_customers = solution.apply_destroy_operator(remove_operator, num_customers_to_remove=5) # TODO: set a destruction rate
-        print(f"removed customers: {removed_customers}")
+        removed_customers = solution.apply_destroy_operator(remove_operator, num_customers_to_remove=number_of_vertices_to_remove) # TODO: set a destruction rate
+        # print(f"removed customers: {removed_customers}")
         solution.apply_insert_operator(insert_operator, removed_customers) # check a way to return a solution
         new_cost = solution.get_cost()
         # debugging:
-        print(f"new solution: {solution}")
-        print(f"new cost: {new_cost}")
-        print("old solution: ", best_solution)
+        # print(f"new solution: {solution}")
+        # print(f"new cost: {new_cost}")
+        # print("old solution: ", best_solution)
+        adaptive_removal.update_mu(new_cost, best_cost, current_cost)
 
         # --- acceptance criteria
         delta_cost = new_cost - current_cost
@@ -62,7 +69,7 @@ def alns(initial_solution, number_of_iterations: int):
             current_solution = solution.copy()
             current_cost = new_cost
             solution = solution
-            print("solution hash: ", solution.__hash__())
+            # print("solution hash: ", solution.__hash__())
             # Check if the new solution is a global best
             if new_cost < best_cost:
                 best_cost = new_cost
@@ -92,30 +99,30 @@ def alns(initial_solution, number_of_iterations: int):
         else:
             # still update operator score (frequency + 1, score + 0)
             # debug, check that if the solution is not accepted, it goes back to the one before
-            print("--- not accepted :( ---")
+            # print("--- not accepted :( ---")
             solution = current_solution.copy()
             remove_operator.update_score()
             insert_operator.update_score()
 
-        print(accepted_solutions)
+        # print(accepted_solutions)
         # Update the temperature
-        temperature = temperature * cooling_rate # TODO: set the cooling mechanism
+        temperature = temperature*(1-cooling_rate) # TODO: set the cooling mechanism
 
         # --- calculate new operator weights based on the last segment.
         segment_size = 20
         if i % segment_size == 0:
             score_frequency_list = [(op.score, op.frequency) for op in remove_operators_list]
-            print(score_frequency_list)
-            print("---- adapted operator weight ----")
-            adl.adapt_operator_weights()
+            # print(score_frequency_list)
+            # print("---- adapted operator weight ----")
+            aos.adapt_operator_weights()
             # after the new weights have been calculated, the score and frequency for the new segment are re-initialized
-            adl.initialize_weights()
+            aos.initialize_weights()
             score_frequency_list = [(op.score, op.frequency) for op in remove_operators_list]
-            print(score_frequency_list)
+            # print(score_frequency_list)
 
-        print(
-            f"Remove operator score: {remove_operator.score, remove_operator.frequency}, Insert operator score: {insert_operator.score, insert_operator.frequency}")
-        print("")
+        # print(
+            # f"Remove operator score: {remove_operator.score, remove_operator.frequency}, Insert operator score: {insert_operator.score, insert_operator.frequency}")
+        # print("")
 
-    return solution
+    return best_solution
 

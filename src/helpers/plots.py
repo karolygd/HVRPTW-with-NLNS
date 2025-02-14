@@ -1,12 +1,11 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from resources.data import Data
-from resources.datatypes import Route
+from resources.datatypes.route import Route
 
-def draw_routes(routes: list[Route]):
+def draw_routes(routes: list[Route], instance_name:str):
     # List of unique colors
-    instance_name = "C1_2_1.txt"
-    data = Data().get_instance("C1_2_1.txt")
+    data = Data(instance_name).get_instance()
     colors = list(mcolors.TABLEAU_COLORS.values())  # Use tableau colors for distinct colors
 
     # Initialize plot
@@ -23,18 +22,13 @@ def draw_routes(routes: list[Route]):
         color = colors[idx % len(colors)]  # Cycle through colors if there are more routes than colors
 
         # Extract x and y coordinates for the route
-        x_coords = [data['node_coord'][node][0] for node in route.nodes]
-        y_coords = [data['node_coord'][node][1] for node in route.nodes]
-        node_numbers = [node for node in route.nodes]
+        x_coords = [data['node_coord'][node.id][0] for node in route.nodes]
+        y_coords = [data['node_coord'][node.id][1] for node in route.nodes]
+        node_numbers = [node.id for node in route.nodes]
 
         # Plot the route
         plt.plot(x_coords, y_coords, color=color, label=f'Route {idx + 1}', linewidth=1, zorder=2)
         plt.scatter(x_coords, y_coords, color=color, s=20, zorder=3)  # Mark nodes on the route
-
-        # Add node numbers as text labels
-        for x, y, node_number in zip(x_coords, y_coords, node_numbers):
-            if node_number in [154, 80, 175, 12, 178]: #removed_nodes
-                plt.text(x, y, str(node_number), fontsize=12, ha='center', va='center', zorder=4)
 
     # Add labels and title
     plt.xlabel('X Coordinate')

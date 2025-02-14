@@ -1,2 +1,0 @@
-
-def simulated_annealing():

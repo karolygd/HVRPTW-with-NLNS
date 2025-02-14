@@ -11,7 +11,7 @@ class Data:
         self.base_dir = os.path.dirname(__file__)
         self.instance_name = instance_name
         self.solution_name = instance_name[:-3]+'.sol'
-        self.vehicle_instance_name = "R1.csv" #instance_name[:-6]+'.csv'
+        self.vehicle_instance_name = instance_name[:-6]+'.csv' # used "C1.csv" to test the C1_2_1 instance
 
     def get_instance(self):
         file_path_instance = os.path.join(self.base_dir, "instances/Vrp-Set-Solomon", self.instance_name)
@@ -74,7 +74,7 @@ def parse_problem_instance(instance_name: str, vehicle_cost_structure: str):
     # cost_structure = 'cost_')
     for index, row in df_v.iterrows():
         vehicle = VehicleType(
-                id=row['vehicle_id'],
+                id=int(row['vehicle_id']),
                 cost=row['cost_'+vehicle_cost_structure],
                 capacity=row['capacity'])
         vehicles.append(vehicle)

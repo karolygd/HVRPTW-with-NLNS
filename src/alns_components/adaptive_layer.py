@@ -1,6 +1,6 @@
 import random
 
-class AdaptiveLayer:
+class AdaptiveOperatorSelector:
     def __init__(self, remove_operators, insert_operators):
         self.remove_operators = remove_operators
         self.insert_operators = insert_operators
@@ -46,7 +46,7 @@ class AdaptiveLayer:
         total_weight_insert = sum(self.insert_weights)
         remove_selection_probabilities = [w_r / total_weight_remove for w_r in self.remove_weights]
         insert_selection_probabilities = [w_i / total_weight_insert for w_i in self.insert_weights]
-        print(f"list of remove weights: {self.remove_weights}, list of insert weights: {self.insert_weights}")
+        # print(f"list of remove weights: {self.remove_weights}, list of insert weights: {self.insert_weights}")
 
         cumulative_probabilities_remove = []
         cumulative_probabilities_insert = []
@@ -66,13 +66,13 @@ class AdaptiveLayer:
         for i, cumulative_prob_remove in enumerate(cumulative_probabilities_remove):
             if r_remove <= cumulative_prob_remove:
                 remove_operator = self.remove_operators[i]
-                print(f"i: {i}, r_remove = {r_remove}, cumulative_prob: {cumulative_probabilities_remove},  {remove_operator.name}")
+                # print(f"i: {i}, r_remove = {r_remove}, cumulative_prob: {cumulative_probabilities_remove},  {remove_operator.name}")
                 break
 
         for i, cumulative_prob_insert in enumerate(cumulative_probabilities_insert):
             if r_insert <= cumulative_prob_insert:
                 insert_operator = self.insert_operators[i]
-                print(f"i: {i}, r_insert = {r_insert}, cumulative_prob: {cumulative_probabilities_insert},  {insert_operator.name}")
+                # print(f"i: {i}, r_insert = {r_insert}, cumulative_prob: {cumulative_probabilities_insert},  {insert_operator.name}")
                 break
 
         return remove_operator, insert_operator

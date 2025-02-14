@@ -16,7 +16,7 @@ class Edge:
 
 @dataclass(frozen=True)
 class VehicleType:
-    id: str
+    id: int
     cost: float
     capacity: float
 
