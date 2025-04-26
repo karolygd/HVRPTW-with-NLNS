@@ -80,7 +80,7 @@ class Route:
         """
         if not update:
             update = EvaluateRoute(self.nodes).evaluate_insertion(node_to_insert, position)[1:]
-            print("debug: update_params: ", update)
+            #print("debug: update_params: ", update)
 
         self.nodes.insert(position, node_to_insert)
         route_id = self.id # self.nodes[-1].route_id
@@ -104,10 +104,6 @@ class Route:
             node.position = temp_position[node.id]
             node.route_id = route_id
             node.FS_i = temp_FS_i[node.id]
-        # else:
-        #     update_params = EvaluateRoute(self.nodes).evaluate_insertion(node_to_insert, position)[1:]
-        #     print("debug: update_params: ", update_params)
-        #     self.insert_node_at(node_to_insert, position, update_params)
 
     def insertion_is_feasible(self, node_to_insert: Node, position: int):
         return EvaluateRoute(self.nodes).evaluate_insertion(node_to_insert, position)

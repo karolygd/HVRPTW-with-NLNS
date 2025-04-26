@@ -47,74 +47,77 @@ class EvaluateRoute:
         If valid, updates accumulated distance, node arrival times (t_i), and accumulated demand (z_i) and returns the merged route.
         If not valid, it returns False.
         """
-        # 1. Check capacity feasibility
-        # total_demand = accumulated demand until last node + demand of node to insert
-        total_demand = self.route[-1].z_i + self.vertices[node_to_insert.id].demand
-        if total_demand > self.max_vehicle_capacity:
-            return False, {}, {}, {}, {}, {}  # Capacity exceeds limit, merge is invalid
 
-        # 2. Calculate new arrival times (store temporarily)
-        predecessor_node = self.route[position - 1]  # node previous to insertion
-        successor_node = self.route[position]
-        route_id = predecessor_node.route_id
+        try:
+            # 1. Check capacity feasibility
+            # total_demand = accumulated demand until last node + demand of node to insert
+            total_demand = self.route[-1].z_i + self.vertices[node_to_insert.id].demand
+            if total_demand > self.max_vehicle_capacity:
+                return False, {}, {}, {}, {}, {}  # Capacity exceeds limit, merge is invalid
 
-        temp_t_i = {}
-        temp_z_i = {}
-        temp_d_i = {}
-        temp_position = {}
-        temp_FS_i = {}
+            # 2. Calculate new arrival times (store temporarily)
+            predecessor_node = self.route[position - 1]  # node previous to insertion
+            successor_node = self.route[position]
+            route_id = successor_node.route_id
 
-        # -- inserted node:
-        arrival_at_node = max(self.vertices[node_to_insert.id].earliest_start,
-                           predecessor_node.t_i  + self.vertices[predecessor_node.id].service_time +
-                           self.edges[(predecessor_node.id, node_to_insert.id)].distance)
-        if arrival_at_node > self.vertices[node_to_insert.id].latest_start:
-            # print(" - debug: arrival_at_node")
-            return False, {}, {}, {}, {}, {}  # Time window violated
+            temp_t_i = {}
+            temp_z_i = {}
+            temp_d_i = {}
+            temp_position = {}
+            temp_FS_i = {}
 
-        # -- successor node:
-        arrival_at_suc = max(self.vertices[successor_node.id].earliest_start,
-                              arrival_at_node + self.vertices[node_to_insert.id].service_time +
-                              self.edges[(node_to_insert.id, successor_node.id)].distance)
-        if arrival_at_suc > self.vertices[successor_node.id].latest_start:
-            # print(" - debug: arrival_at_suc")
-            # print(f"arrival@suc {arrival_at_suc} = max({self.vertices[successor_node.id].earliest_start}, \
-            #                   {arrival_at_node} + {self.vertices[node_to_insert.id].service_time} + \
-            #                   {self.edges[(node_to_insert.id, successor_node.id)].distance})")
-            # print(f"latest start of successor node {successor_node.id} is {self.vertices[successor_node.id].latest_start}")
-            return False, {}, {}, {}, {}, {}  # Time window violated
+            # -- inserted node:
+            arrival_at_node = max(self.vertices[node_to_insert.id].earliest_start,
+                               predecessor_node.t_i  + self.vertices[predecessor_node.id].service_time +
+                               self.edges[(predecessor_node.id, node_to_insert.id)].distance)
+            if arrival_at_node > self.vertices[node_to_insert.id].latest_start:
+                return False, {}, {}, {}, {}, {}  # Time window violated
 
-        # Store temporary values instead of updating
-        temp_t_i[node_to_insert.id] = arrival_at_node
-        temp_z_i[node_to_insert.id] = predecessor_node.z_i + self.vertices[node_to_insert.id].demand
-        temp_d_i[node_to_insert.id] = predecessor_node.d_i +  self.edges[(predecessor_node.id, node_to_insert.id)].distance
-        temp_position[node_to_insert.id] = position
-        temp_FS_i[node_to_insert.id] = [vehicle.id for vehicle in self.vehicles if vehicle.capacity >= temp_z_i[node_to_insert.id]]
+            # -- successor node:
+            arrival_at_suc = max(self.vertices[successor_node.id].earliest_start,
+                                  arrival_at_node + self.vertices[node_to_insert.id].service_time +
+                                  self.edges[(node_to_insert.id, successor_node.id)].distance)
+            if arrival_at_suc > self.vertices[successor_node.id].latest_start:
+                return False, {}, {}, {}, {}, {}  # Time window violated
 
-        temp_t_i[successor_node.id] = arrival_at_suc
-        temp_z_i[successor_node.id] = temp_z_i[node_to_insert.id] + self.vertices[successor_node.id].demand
-        temp_d_i[successor_node.id] = temp_d_i[node_to_insert.id] + self.edges[(node_to_insert.id, successor_node.id)].distance
-        temp_position[successor_node.id] = position + 1
-        temp_FS_i[successor_node.id] = [vehicle.id for vehicle in self.vehicles if vehicle.capacity >= temp_z_i[successor_node.id]]
+            # Store temporary values instead of updating
+            temp_t_i[node_to_insert.id] = arrival_at_node
+            temp_z_i[node_to_insert.id] = predecessor_node.z_i + self.vertices[node_to_insert.id].demand
+            temp_d_i[node_to_insert.id] = predecessor_node.d_i +  self.edges[(predecessor_node.id, node_to_insert.id)].distance
+            temp_position[node_to_insert.id] = position
+            temp_FS_i[node_to_insert.id] = [vehicle.id for vehicle in self.vehicles if vehicle.capacity >= temp_z_i[node_to_insert.id]]
 
-        # 3. Propagate arrival times across route_j
-        if len(self.route) > 2:
-            for node in self.route[position+1:]: # after the successor node onwards
-                previous_node = node.predecessor_node
-                arrival_at_node = max(self.vertices[node.id].earliest_start,
-                                   temp_t_i[previous_node] + self.edges[(previous_node, node.id)].distance +
-                                   self.vertices[previous_node].service_time)
-                if arrival_at_node > self.vertices[node.id].latest_start:
-                    # print(" - debug: arrival_at_node loop")
-                    return False, {}, {}, {}, {}, {}  # Time window violated
+            temp_t_i[successor_node.id] = arrival_at_suc
+            temp_z_i[successor_node.id] = temp_z_i[node_to_insert.id] + self.vertices[successor_node.id].demand
+            temp_d_i[successor_node.id] = temp_d_i[node_to_insert.id] + self.edges[(node_to_insert.id, successor_node.id)].distance
+            temp_position[successor_node.id] = position + 1
+            temp_FS_i[successor_node.id] = [vehicle.id for vehicle in self.vehicles if vehicle.capacity >= temp_z_i[successor_node.id]]
 
-                temp_t_i[node.id] = arrival_at_node
-                temp_z_i[node.id] = temp_z_i[previous_node] + self.vertices[node.id].demand
-                temp_d_i[node.id] = temp_d_i[previous_node] + self.edges[(previous_node, node.id)].distance
-                temp_position[node.id] = temp_position[previous_node] + 1
-                temp_FS_i[node.id] = [vehicle.id for vehicle in self.vehicles if vehicle.capacity >= temp_z_i[node.id]]
+            # 3. Propagate arrival times across route_j
+            if len(self.route) > 2:
+                for node in self.route[position+1:]: # after the successor node onwards
+                    # print(f"checking arrival time to node {node}, with previous node {node.predecessor_node}")
+                    previous_node = node.predecessor_node
+                    arrival_at_node = max(self.vertices[node.id].earliest_start,
+                                       temp_t_i[previous_node] + self.edges[(previous_node, node.id)].distance +
+                                       self.vertices[previous_node].service_time)
+                    if arrival_at_node > self.vertices[node.id].latest_start:
+                        # print(" - debug: arrival_at_node loop")
+                        return False, {}, {}, {}, {}, {}  # Time window violated
 
-        return True, temp_t_i, temp_z_i, temp_d_i, temp_position, temp_FS_i
+                    temp_t_i[node.id] = arrival_at_node
+                    temp_z_i[node.id] = temp_z_i[previous_node] + self.vertices[node.id].demand
+                    temp_d_i[node.id] = temp_d_i[previous_node] + self.edges[(previous_node, node.id)].distance
+                    temp_position[node.id] = temp_position[previous_node] + 1
+                    temp_FS_i[node.id] = [vehicle.id for vehicle in self.vehicles if vehicle.capacity >= temp_z_i[node.id]]
+
+            return True, temp_t_i, temp_z_i, temp_d_i, temp_position, temp_FS_i
+        except Exception as e:
+            print(e)
+            print(f"debug 'evaluate insertion' insert {node_to_insert.id} in {self.route} at position {position}")
+            if len(self.route) > 2:
+                for node in self.route[position+1:]: # after the successor node onwards
+                    print(f"checking arrival time to node {node}, with previous node {node.predecessor_node}")
 
     def calculate_removal_cost(self, position):
         # Identify the nodes before and after the node to be removed
@@ -193,7 +196,6 @@ class EvaluateRoute:
         """
         return self.route.nodes[-1].t_i
 
-    # todo: evaluate if used:
     def time_window_feasibility(self) -> bool:
         arrival_at_i = 0
         for k in range(1, 1 + len(self.route[1:])):
@@ -257,7 +259,8 @@ class EvaluateMerge:
         self.problem_instance = global_context.global_instance
         self.vertices = self.problem_instance.vertices
         self.edges = self.problem_instance.edges
-        self.capacity_limit = 200  #max(vehicle.capacity for vehicle in self.vehicles)
+        self.vehicles = self.problem_instance.vehicles
+        self.capacity_limit = max(vehicle.capacity for vehicle in self.vehicles)
 
     def evaluate_and_merge_routes(self):
         """

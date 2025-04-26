@@ -48,6 +48,8 @@ class Solution:
             all_routes_distance += route.total_distance()
         return all_routes_distance
 
+    #def remove_route(self,):
+
     def copy(self):
         return deepcopy(Solution(self.routes))
 

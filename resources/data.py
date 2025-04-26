@@ -2,8 +2,9 @@ import os
 import vrplib
 import pandas as pd
 from resources.datatypes.instance import *
-
+import numpy as np
 from itertools import product
+import math
 # from pathlib import Path
 
 class Data:
@@ -11,7 +12,7 @@ class Data:
         self.base_dir = os.path.dirname(__file__)
         self.instance_name = instance_name
         self.solution_name = instance_name[:-3]+'.sol'
-        self.vehicle_instance_name = instance_name[:-6]+'.csv' # used "C1.csv" to test the C1_2_1 instance
+        self.vehicle_instance_name = instance_name[:-6]+'.csv'
 
     def get_instance(self):
         file_path_instance = os.path.join(self.base_dir, "instances/Vrp-Set-Solomon", self.instance_name)
@@ -36,6 +37,24 @@ class Data:
         # print(solution)
         return solution
 
+    def get_vehicle_data(self) -> pd.DataFrame:
+        file_path_vehicle = os.path.join(self.base_dir, "instances/vehicles", self.vehicle_instance_name)
+        df = pd.read_csv(file_path_vehicle)
+        return df
+
+class ReducedData:
+    def __init__(self, instance_name: str):
+        self.base_dir = os.path.dirname(__file__)
+        self.instance_name = instance_name
+        self.vehicle_instance_name = instance_name[:-12] + '.csv'
+
+    def get_instance(self):
+        file_path_instance = os.path.join(self.base_dir, "instances/training_instances", self.instance_name)
+        instance = pd.read_csv(file_path_instance)
+        # print(instance.columns()) --> ['x', 'y', 'demand', 'earliest_start', 'latest_start', 'service_time']
+        return instance
+
+    #stays the same:
     def get_vehicle_data(self) -> pd.DataFrame:
         file_path_vehicle = os.path.join(self.base_dir, "instances/vehicles", self.vehicle_instance_name)
         df = pd.read_csv(file_path_vehicle)
@@ -80,3 +99,54 @@ def parse_problem_instance(instance_name: str, vehicle_cost_structure: str):
         vehicles.append(vehicle)
 
     return Instance(name= instance['name'], vertices=vertices, edges=edge_dict, vehicles=vehicles)
+
+def parse_reduced_instance(instance_name: str, vehicle_cost_structure: str):
+    # --- Get v information: ---
+    vertices: list[Vertex] = []
+
+    r_data = ReducedData(instance_name)
+    instance = r_data.get_instance()
+
+    # Warning for when checking solutions: unlike the benchmark data, depot is customer 0 and not 1, last client is 100 and not 101.
+    for i in range(0, len(instance['demand'])):
+        v = Vertex(
+            vertex_id=i,
+            demand=int(instance["demand"][i]),
+            earliest_start=int(instance["earliest_arrival"][i]),
+            latest_start=int(instance["latest_arrival"][i]),
+            service_time=int(instance["service_time"][i])
+        )
+        vertices.append(v)
+
+    # --- Get edge information: ---
+    # Recalculate edge weight with only remaining nodes
+    X = instance[['x', 'y']].to_numpy()
+    # Compute Euclidean distance
+    edge_weights = np.sqrt(((X[:, np.newaxis, :] - X[np.newaxis, :, :]) ** 2).sum(axis=2))
+
+    edge_dict: dict[ArcID, Edge] = {
+        (i.vertex_id, j.vertex_id): Edge(distance=float(edge_weights[i.vertex_id][j.vertex_id])) for i, j in product(vertices, repeat=2)
+    }
+
+    # --- Get vehicle information: ---
+
+    if vehicle_cost_structure not in ['a', 'b', 'c']:
+        raise ValueError('Invalid vehicle cost structure, can only be: a, b or c')
+
+    df_v = r_data.get_vehicle_data()
+    vehicles: list[VehicleType] = []
+    # cost_structure = 'cost_')
+    for index, row in df_v.iterrows():
+        vehicle = VehicleType(
+                id=int(row['vehicle_id']),
+                cost=row['cost_'+vehicle_cost_structure],
+                capacity=row['capacity'])
+        vehicles.append(vehicle)
+
+    return Instance(name= instance_name[:-3], vertices=vertices, edges=edge_dict, vehicles=vehicles)
+# data = Data("R101.txt").get_instance()
+# print(data)
+
+#instance = ReducedData("C1_2_1_100.txt").get_instance()
+# instance_name = "C1_2_1_100.txt"
+# parse_reduced_instance(instance_name, vehicle_cost_structure='a')

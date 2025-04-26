@@ -97,7 +97,7 @@ class RemoveOperators:
 
             return nodes_to_remove
 
-        return Operator(operator, name="random_customers")
+        return Operator(operator, name=1)
 
     def randomly_selected_sequence_within_concatenated_routes(self):
         """
@@ -122,7 +122,7 @@ class RemoveOperators:
                 all_nodes_to_route[node].assign_best_vehicle()
 
             return nodes_to_remove
-        return Operator(operator, name="randomly_selected_sequence_within_concatenated_routes")
+        return Operator(operator, name=2)
 
     def a_posteriori_score_related_customers(self):
         """
@@ -154,7 +154,7 @@ class RemoveOperators:
                 all_nodes_to_route[node].assign_best_vehicle()
 
             return nodes_to_remove
-        return Operator(operator, name="a_posteriori_score_related_customers")
+        return Operator(operator, name=3)
 
     def worst_cost_customers(self): #num_customers_to_remove: int
         """
@@ -186,7 +186,7 @@ class RemoveOperators:
                 all_nodes_to_route[node].assign_best_vehicle()
 
             return nodes_to_remove
-        return Operator(operator, name="worst_cost_customers")
+        return Operator(operator, name=4)
 
     def random_route(self):
         """
@@ -201,19 +201,6 @@ class RemoveOperators:
             nodes_to_remove = []
             remaining_to_remove = num_customers_to_remove
 
-            # my implementation:
-            # all_routes = solution.routes
-            # route_to_remove = random.choice(all_routes)
-            # nodes_to_remove = route_to_remove.nodes
-            #
-            # for node in nodes_to_remove:
-            #     all_nodes_to_route[node].remove_node(node)
-            #     all_nodes_to_route[node].assign_best_vehicle()
-            #
-            # if len(nodes_to_remove) < num_customers_to_remove:
-            #     route_to_remove_2 = random.choice(solution.routes)
-            #     if len(route_to_remove_2.nodes)
-
             # 1. Remove entire routes at random
             while remaining_to_remove > 0:
                 route_to_remove = random.choice(solution.routes)
@@ -226,9 +213,11 @@ class RemoveOperators:
                 if number_of_nodes_in_route <= remaining_to_remove:
                     #print(" * removing route * ")
                     # Remove all nodes from the route
-                    for node in route_nodes[1:-1]: # [1:-1] to exclude depots
-                        route_to_remove.remove_node(node)
-                        nodes_to_remove.append(node)
+                    # for node in route_nodes[1:-1]: # [1:-1] to exclude depots
+                    #     route_to_remove.remove_node(node)
+                    #     nodes_to_remove.append(node)
+                    nodes_to_remove += route_nodes[1:-1]
+                    solution.routes.remove(route_to_remove)
 
                     # # Remove the route from the solution
                     # solution.routes.remove(route_to_remove)
@@ -241,11 +230,11 @@ class RemoveOperators:
             # Apply score related removal for the remaining number of customers
             if remaining_to_remove > 0:
                 #print("- debug: * shaw removal * ")
-                shaw_removal_operator = self.a_posteriori_score_related_customers()
-                additional_nodes_to_remove = shaw_removal_operator.func(solution, remaining_to_remove)
+                sequential_removal_operator = self.randomly_selected_sequence_within_concatenated_routes()
+                additional_nodes_to_remove = sequential_removal_operator.func(solution, remaining_to_remove)
                 #print("- debug: additional_nodes_to_remove", additional_nodes_to_remove)
                 # Add these nodes to the nodes_to_remove
                 nodes_to_remove.extend(additional_nodes_to_remove)
 
             return nodes_to_remove
-        return Operator(operator, name="random_route")
+        return Operator(operator, name=5)

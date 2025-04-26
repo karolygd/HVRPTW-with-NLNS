@@ -20,10 +20,32 @@ def savings_vrptw():
     # 1. Create a route per vertex and get required information
     for i in range(1, len(nodes)):
         # create a single route for each node, leaving and coming back to the depot 0
-        depot = Node(id=0, t_i=0.0, z_i = 0.0, d_i=0.0, route_id=0, position=0, predecessor_node=0, successor_node=0)
-        new_node = Node(id=i, t_i=max(nodes[i].earliest_start, edges[(0, i)].distance), z_i = nodes[i].demand,
-                        d_i=edges[(0, i)].distance, route_id=i-1, position=1, predecessor_node=0, successor_node=0)
-        route = Route(nodes=[depot, new_node, depot], id=i - 1)
+        depot_start = Node(id=0,
+                           t_i=0.0,
+                           z_i = 0.0,
+                           d_i=0.0,
+                           route_id=i-1,
+                           position=0,
+                           predecessor_node=0,
+                           successor_node=i)
+        new_node = Node(id=i,
+                        t_i=max(nodes[i].earliest_start, edges[(0, i)].distance),
+                        z_i = nodes[i].demand,
+                        d_i=edges[(0, i)].distance,
+                        route_id=i-1,
+                        position=1,
+                        predecessor_node=0,
+                        successor_node=0)
+        depot_end = Node(id=0,
+                         t_i=new_node.t_i + nodes[i].service_time + edges[(i, 0)].distance,
+                         z_i = new_node.z_i,
+                         d_i=new_node.t_i+edges[(i, 0)].distance,
+                         route_id=i-1,
+                         position=2,
+                         predecessor_node=i,
+                         successor_node=0)
+
+        route = Route(nodes=[depot_start, new_node, depot_end], id=i - 1)
         route_id.append(i - 1) # keep track of the nodes added. node -1 to start at 0, 0 is the depot
         routes.append(route)
         route_demand.append(int(nodes[i].demand))

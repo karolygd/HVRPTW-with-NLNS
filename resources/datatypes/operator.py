@@ -25,7 +25,7 @@ class Operator:
         :param r: reaction factor - controls how quickly the weight adjustment procedure reacts to changes in the effectiveness
                     of the heuristic: if r = 0 , the weights remain unchanged, and if r = 1 the weights are determined by the performance in the last segment
         """
-        if self.frequency == 0:
-            self.weight = self.weight
+        if self.frequency == 0: #not to incur in division by 0 in case operator is not used in the current segment
+            self.weight = self.weight#*(1-r)
         else:
             self.weight = self.weight*(1-r) + r*(self.score/self.frequency)

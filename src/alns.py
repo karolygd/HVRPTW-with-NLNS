@@ -1,128 +1,196 @@
-# Here code the alns metaheuristic
-# Use the operators from the operator.py folder.
 import random
 import math
 from src.operators.remove_operators import RemoveOperators
 from src.operators.insertion_operators import InsertionOperators
 from src.alns_components.adaptive_layer import AdaptiveOperatorSelector
 from src.alns_components.adaptive_removal import AdaptiveRemovalManager
+#from src.alns_components.local_search import LocalSearch
+from src.alns_components.setting_temperature import SettingTemperature
+from src.helpers.features import EngFeatures
+import logging
 
+# --- Configure the logging:
+logging.basicConfig(
+    filename='training_alns_iterations.log',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
-def alns(initial_solution, number_of_iterations: int):
+def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterations: int, operator_selection:int,
+         h_start, h_end, temp_update_func, segment_size:int, o1: float, o2: float, o3: float):
 
     # --- initialize the solution:
-    solution = initial_solution.copy() #probably need to do a copy for when the new_solution doesn't get accepted, check deepcopy()
-    # best solution:
-    best_solution = initial_solution #Solution(routes=initial_solution)
+    solution = initial_solution.copy()
+        # best solution:
+    best_solution = initial_solution
     best_cost = solution.get_cost()
-    # current solution:
+        # current solution:
     current_solution = initial_solution.copy()
     current_cost = best_cost
-    # keeping track of visited solutions:
+        # keeping track of visited solutions:
     accepted_solutions = set()
 
-    temperature = 1000  # TODO: check how to define the initial temp
-    cooling_rate = 0.03     # from 0 to 1 # TODO: check how to define the cooling rate
+    # --- define initial and final temperature for SA
+    sa_temp = SettingTemperature(h_start, h_end, temp_update_func, current_cost, number_of_iterations)
+    temperature =  sa_temp.initial_temperature()
+    sa_temp.final_temperature()
 
+    # --- select the pool of removal and insertion operators:
     remove_operators = RemoveOperators()
     insert_operators = InsertionOperators()
-    # --- select the pool of remove operators:
     remove_operators_list = [remove_operators.random_customers(),
                         remove_operators.randomly_selected_sequence_within_concatenated_routes(),
                         remove_operators.a_posteriori_score_related_customers(),
                         remove_operators.worst_cost_customers(),
                         remove_operators.random_route()]
-
-    # --- select the pool of insertion operators:
     insert_operators_list = [insert_operators.random_order_best_position(),
                         insert_operators.customer_with_highest_position_regret_best_position(k=2),
                         insert_operators.customer_with_highest_position_regret_best_position(k=3)]
 
+    # --- Define the adaptive layer: operator selector and number of customers to remove
     number_of_customers = len(remove_operators.vertices)
-    print("- number_of_customers: ", number_of_customers)
     aos = AdaptiveOperatorSelector(remove_operators_list, insert_operators_list)
     adaptive_removal = AdaptiveRemovalManager(number_of_customers)
 
-    # aos.adapt_operator_weights() # to initialize the weights of all operators at 1
-
+    # --- initialize features needed
+    e_feature = EngFeatures()
+    n_accepted_solutions = e_feature.recent_acceptances(segment_size)
+    prev_remove_operator = None
+    prev_insert_operator = None
+    prev_features = {"delta_last_improv": 0, "acceptance_ratio": 0, "i_last_improv": 0}
+    i_last_improv = 0
+    delta_last_improv = 0
     for i in range(1, number_of_iterations+1):
+        # --- define number of nodes/customers to remove
         number_of_vertices_to_remove = adaptive_removal.get_removal_size()
-        print("* iteration #", i,)# "customer removed: ", number_of_vertices_to_remove)
-        # print("iteration: ", i)
-        # --- set insert and remove operators:
-        remove_operator, insert_operator = aos.roulete_wheel() # roulette_wheel(remove_operators, insert_operators)
-        # print(f"selected remove operator: {remove_operator.name}, selected insert operator: {insert_operator.name}")
+            # for ablation analysis:
+            # number_of_vertices_to_remove =  random.randrange(5, 25, 5)
+        # --- define input data for neural network
+        nn_input_features = [
+            i,
+            instance_type,
+            tw_spread,
+            operator_selection,
+            number_of_vertices_to_remove,
+            prev_features["delta_last_improv"],
+            prev_features["acceptance_ratio"],
+            prev_features["i_last_improv"],
+            prev_remove_operator,
+            prev_insert_operator,
+            e_feature.route_imbalance(solution),
+            e_feature.capacity_utilization(solution),
+        ]
 
-        removed_customers = solution.apply_destroy_operator(remove_operator, num_customers_to_remove=number_of_vertices_to_remove) # TODO: set a destruction rate
-        # print(f"removed customers: {removed_customers}")
+        success_remove_operators = []
+        for operator in remove_operators_list:
+            success_remove_operators.append(operator.weight)
+        success_insert_operators = []
+        for operator in insert_operators_list:
+            success_insert_operators.append(operator.weight)
+
+        nn_input_features = nn_input_features + success_remove_operators + success_insert_operators
+        feature_log = f""
+        for feature in nn_input_features:
+            feature_log += f"{feature},"
+
+        # --- set insert and remove operators and apply to the solution:
+        if operator_selection == 1:
+            remove_operator, insert_operator = aos.roulete_wheel()  # or random selection
+        else:
+            remove_operator, insert_operator = aos.random_selection()
+            # Todo: here incorporate the neural network
+        removed_customers = solution.apply_destroy_operator(remove_operator, num_customers_to_remove=number_of_vertices_to_remove)
         solution.apply_insert_operator(insert_operator, removed_customers) # check a way to return a solution
         new_cost = solution.get_cost()
-        # debugging:
-        # print(f"new solution: {solution}")
-        # print(f"new cost: {new_cost}")
-        # print("old solution: ", best_solution)
+
+        # --- recalculate data for adaptive number of customers to remove
         adaptive_removal.update_mu(new_cost, best_cost, current_cost)
 
-        # --- acceptance criteria
+            # Due to ablation analysis, local search will no,longer be used
+            # ls.apply_local_search(solution)
+            # new_cost = solution.get_cost()
+
+        # --- acceptance criteria: SA
+
         delta_cost = new_cost - current_cost
-        if delta_cost < 0 or random.random() < math.exp(-delta_cost/temperature):
+        relative_delta_cost = delta_cost/current_cost
+        if delta_cost < 0:
+            accept_prob = 1.0
+        else:
+            exponent = -delta_cost / temperature
+            if abs(exponent) > 700:
+                accept_prob = 0.0
+            else:
+                accept_prob = math.exp(-delta_cost / temperature)
+        if delta_cost < 0 or random.random() < math.exp(accept_prob):
+            n_accepted_solutions.append(1)
             current_solution = solution.copy()
             current_cost = new_cost
             solution = solution
-            # print("solution hash: ", solution.__hash__())
-            # Check if the new solution is a global best
+            # --- Check if the new solution is a global best
             if new_cost < best_cost:
+                i_last_improv = 0  # an improvement occurred, so last improvement is restarted
+                delta_last_improv = relative_delta_cost #delta_cost
                 best_cost = new_cost
                 best_solution = current_solution.copy()
-                # reward operators for best global solution -> o2
-                remove_operator.update_score(score = 4.0)
-                insert_operator.update_score(score = 4.0)
+                # reward operators for best global solution -> o1
+                remove_operator.update_score(score = o1) #4.0
+                insert_operator.update_score(score = o1)
                 # Add the new solution to the set of accepted solutions
                 accepted_solutions.add(solution.__hash__())
             elif solution.__hash__() not in accepted_solutions:
                 # Add the new solution to the set of accepted solutions
                 accepted_solutions.add(solution.__hash__())
                 if delta_cost < 0:  # Better than the current solution
+                    i_last_improv = 0   # an improvement occurred, so last improvement is restarted
+                    delta_last_improv = relative_delta_cost #delta_cost
                     # reward operators for best current solution -> o2
-                    remove_operator.update_score(score=2.5)
-                    insert_operator.update_score(score=2.5)
+                    remove_operator.update_score(score=o2) #2.5
+                    insert_operator.update_score(score=o2)
                     pass
                 else:
-                    # reward operators for different solution -> o3
-                    remove_operator.update_score(score=1.0)
-                    insert_operator.update_score(score=1.0)
+                    i_last_improv += 1
+                    # DO NOT update delta_last_improv here (keeps the last improvement magnitude)
+                    #reward operators for different solution -> o3
+                    remove_operator.update_score(score=o3) #1.0
+                    insert_operator.update_score(score=o3)
                     pass
             else:
+                i_last_improv += 1
+                # DO NOT update delta_last_improv here (keeps the last improvement magnitude)
                 # solution was accepted, but it has already been visited:
                 remove_operator.update_score()
                 insert_operator.update_score()
         else:
             # still update operator score (frequency + 1, score + 0)
-            # debug, check that if the solution is not accepted, it goes back to the one before
-            # print("--- not accepted :( ---")
+            n_accepted_solutions.append(0)
             solution = current_solution.copy()
             remove_operator.update_score()
             insert_operator.update_score()
 
-        # print(accepted_solutions)
-        # Update the temperature
-        temperature = temperature*(1-cooling_rate) # TODO: set the cooling mechanism
+        # --- Update the temperature:
+        temperature = sa_temp.update_temperature()
 
         # --- calculate new operator weights based on the last segment.
-        segment_size = 20
         if i % segment_size == 0:
-            score_frequency_list = [(op.score, op.frequency) for op in remove_operators_list]
-            # print(score_frequency_list)
-            # print("---- adapted operator weight ----")
             aos.adapt_operator_weights()
             # after the new weights have been calculated, the score and frequency for the new segment are re-initialized
             aos.initialize_weights()
-            score_frequency_list = [(op.score, op.frequency) for op in remove_operators_list]
-            # print(score_frequency_list)
 
-        # print(
-            # f"Remove operator score: {remove_operator.score, remove_operator.frequency}, Insert operator score: {insert_operator.score, insert_operator.frequency}")
-        # print("")
+        # --- Get output features and log them
+        output = f"{delta_cost}, {new_cost}, {remove_operator.name}, {insert_operator.name}"
+        feature_log += output
+
+        logger.info(feature_log)
+
+        # --- Get and store features for the next iteration
+        acceptance_ratio = sum(n_accepted_solutions) / len(n_accepted_solutions)
+
+        prev_features["rel_delta_last_improv"] = delta_last_improv #changed variable name to fit new df
+        prev_features["acceptance_ratio"] = acceptance_ratio
+        prev_features["i_last_improv"] = i_last_improv
+        prev_remove_operator = remove_operator.name
+        prev_insert_operator = insert_operator.name
 
     return best_solution
 

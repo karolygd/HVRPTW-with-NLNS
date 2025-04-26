@@ -14,6 +14,7 @@ class AdaptiveRemovalManager:
         :param lambda_2 (int): Window size to check stagnation.
         """
         self.removal_sizes = [max(1, int((i / m) * 0.25 * total_customers)) for i in range(1, m + 1)]
+        # with m=5, 0.25, it gives this configuration #[5, 10, 15, 20, 25]
         self.mu_a = self.removal_sizes[len(self.removal_sizes) // 2]  # Start at the middle value
         self.mu = self.mu_a
         self.lambda_1 = lambda_1
@@ -38,7 +39,10 @@ class AdaptiveRemovalManager:
         elif new_solution_cost < current_solution_cost:
             #  If the solution uncovered at the current iteration is better than the incumbent,
             #  μ is reset to μa so long as μ>μa.
-            self.mu = self.mu_a
+            if self.mu > self.mu_a:
+                self.mu = self.mu_a
+            # else:
+            #     self.mu = self.mu
         else:
             # Diversification mechanism: if the number of times all previous solutions are realized is λ1
             # in a predefined number of iterations (λ2), then μ is set to the next highest value.

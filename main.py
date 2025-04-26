@@ -1,20 +1,18 @@
 # Here I will do all the running of solutions
 # Defining the problem instance to solve, getting the initial solution, getting the alns solution, ...
 
-from resources.data import parse_problem_instance
+from resources.data import parse_problem_instance, parse_reduced_instance
 import resources.global_context as global_context
 from resources.datatypes.solution import Solution
 from src.initial_solution import savings_vrptw
-from src.operators.remove_operators import RemoveOperators
-from src.operators.insertion_operators import InsertionOperators
-from src.helpers.plots import draw_routes
+from resources.recording_data import RecordingData
+# from src.operators.remove_operators import RemoveOperators
+# from src.operators.insertion_operators import InsertionOperators
+# from src.helpers.plots import draw_routes
+from src.alns_components.local_search import LocalSearch
 
 from src.alns import alns
 import time
-
-# --- Set the global instance to be solved ---
-instance_name = "C101.txt"
-global_context.global_instance = parse_problem_instance(instance_name, vehicle_cost_structure='a')
 
 def print_solution(solution: Solution):
     simplified_solution = []
@@ -23,26 +21,116 @@ def print_solution(solution: Solution):
         simplified_solution.append(r)
     print(simplified_solution)
 
-# --- Get initial solution ---
-initial_solution = savings_vrptw()
-print("cost of initial_solution: ", initial_solution.get_cost())
-print("total distance: ", initial_solution.get_distance())
-print_solution(initial_solution)
-print(initial_solution)
-print("")
+# # --- Set the global instance to be solved ---
+# # ** for benchmarks **
+# instance_name = "C101.txt"
+# global_context.global_instance = parse_problem_instance(instance_name, vehicle_cost_structure='a')
+# # ** for training **
+# # instance_name = "C1_2_1_100.txt"
+# # global_context.global_instance = parse_reduced_instance(instance_name, vehicle_cost_structure='a')
+#
+#
+# # --- Get initial solution ---
+# initial_solution = savings_vrptw()
+# print("cost of initial_solution: ", initial_solution.get_cost())
+# #print("total distance: ", initial_solution.get_distance())
+# print_solution(initial_solution)
+# print(initial_solution)
+# print("")
 
-# --- Solve the alns: define hyperparameters ---
-start_time = time.time()
-alns_solution = alns(initial_solution, number_of_iterations=5000)
-print(alns_solution)
+# # --- Solve the alns: define hyperparameters ---
+# if instance_name[0] == "C": # C: clustered instance
+#     instance_type = 0
+# elif instance_name[1] == "C": # RC: random-clustered instance
+#     instance_type = 2
+# else:                          # R: random instance
+#     instance_type = 1
+#
+# tw_spread = instance_name[1]
+# try:
+#     tw_spread = int(instance_name[1])
+# except:
+#     tw_spread = int(instance_name[2])
+# print("tw_spread: ", tw_spread)
+#
+# start_time = time.time()
+# alns_solution = alns(instance_type=instance_type, tw_spread=tw_spread, initial_solution=initial_solution, number_of_iterations=1000, operator_selection=1, h_start=1000, h_end=0, temp_update_func='linear', segment_size=20,
+#                      o1=5, o2=3, o3=1)
+# end_time = time.time()
+# duration = end_time - start_time
+#
+# print(alns_solution)
+# print_solution(alns_solution)
+# print("cost of alns_solution: ", alns_solution.get_cost())
+# #print("total distance: ", alns_solution.get_distance())
+# print("computing time: ", duration)
 
 
-print_solution(alns_solution)
-end_time = time.time()
-duration = end_time - start_time
-print("cost of alns_solution: ", alns_solution.get_cost())
-print("total distance: ", alns_solution.get_distance())
-print("computing time: ", duration)
+
+# --- Statistical Analysis ---
+# file = "hyperparameters"
+# headers_1 = ["Iteration", "Instance", "Execution Time (s)", "Best Cost",  "params_iterations", "params_global_best_score", "params_local_best_score", "params_accepted_score",
+#              "params_cooling_function", "params_init_temp", "params_final_temp"]
+# rd = RecordingData(file, headers_1)
+
+instances_to_run = ["RC2_2_1_100.txt", "RC2_2_2_100.txt", "RC2_2_3_100.txt", "RC2_2_4_100.txt", "RC2_2_5_100.txt", "RC2_2_6_100.txt",
+                    "RC2_2_7_100.txt", "RC2_2_8_100.txt", "RC2_2_9_100.txt"]
+parameter_set = {"params_accepted_score":1,
+    "params_cooling_function":"exponential",
+    "params_final_temp":41.6653632001,
+    "params_global_best_score":5,
+    "params_init_temp":2000,
+    "params_iterations":2000,
+    "params_local_best_score":4}
+
+i = 0
+for instance in instances_to_run:
+    if instance[0] == "C":  # C: clustered instance
+        instance_type = 0
+    elif instance[1] == "C":  # RC: random-clustered instance
+        instance_type = 2
+    else:  # R: random instance
+        instance_type = 1
+
+    tw_spread = instance[1]
+    try:
+        tw_spread = int(instance[1])
+    except:
+        tw_spread = int(instance[2])
+
+    instance_name = instance
+    global_context.global_instance = parse_reduced_instance(instance, vehicle_cost_structure='a')
+
+    # --- Get initial solution ---
+    initial_solution = savings_vrptw()
+
+    start_time = time.time()
+    # 0: random_selector, 1: roulette_wheel
+    alns_solution = alns(instance_type=instance_type, tw_spread=tw_spread, initial_solution=initial_solution, operator_selection=0,
+                         number_of_iterations=parameter_set['params_iterations'], h_start=parameter_set['params_init_temp'], h_end=parameter_set['params_final_temp'],
+                         temp_update_func=parameter_set['params_cooling_function'], segment_size=20,
+                         o1=parameter_set['params_global_best_score'], o2=parameter_set['params_local_best_score'], o3=parameter_set['params_accepted_score'])
+    end_time = time.time()
+    duration = end_time - start_time
+    print("done with alns run ")
+    #
+    # log_dict = {
+    #     "Instance": instance,
+    #     "Execution Time (s)": duration,
+    #     "Best Cost": alns_solution.get_cost(),
+    #     "params_iterations": parameter_set['params_iterations'],
+    #     "params_global_best_score": parameter_set['params_global_best_score'],
+    #     "params_local_best_score": parameter_set['params_local_best_score'],
+    #     "params_accepted_score": parameter_set['params_accepted_score'],
+    #     "params_cooling_function": parameter_set['params_cooling_function'],
+    #     "params_init_temp": parameter_set['params_init_temp'],
+    #     "params_final_temp": parameter_set['params_final_temp']
+    #     }
+    #
+    # rd.log_iteration(iteration= i, **log_dict)
+    # print("done writing data")
+    # print(log_dict)
+    # i+=1
 
 """
 # Debug destroy operators
@@ -57,7 +145,7 @@ cost_removed = 0
 total_distance = 0
 # Need to recalculate the costs ALWAYS
 for route in initial_solution.routes:
-    # route.calculate_total_cost()
+    # route.calculate_total_cost() 
     total_distance += route.total_distance()
     # print(route.nodes, "-", route.cost)
     cost_removed += route.cost
