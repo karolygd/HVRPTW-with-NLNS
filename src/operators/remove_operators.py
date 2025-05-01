@@ -97,7 +97,7 @@ class RemoveOperators:
 
             return nodes_to_remove
 
-        return Operator(operator, name=1)
+        return Operator(operator, name=0)
 
     def randomly_selected_sequence_within_concatenated_routes(self):
         """
@@ -122,7 +122,7 @@ class RemoveOperators:
                 all_nodes_to_route[node].assign_best_vehicle()
 
             return nodes_to_remove
-        return Operator(operator, name=2)
+        return Operator(operator, name=1)
 
     def a_posteriori_score_related_customers(self):
         """
@@ -154,7 +154,7 @@ class RemoveOperators:
                 all_nodes_to_route[node].assign_best_vehicle()
 
             return nodes_to_remove
-        return Operator(operator, name=3)
+        return Operator(operator, name=2)
 
     def worst_cost_customers(self): #num_customers_to_remove: int
         """
@@ -186,7 +186,7 @@ class RemoveOperators:
                 all_nodes_to_route[node].assign_best_vehicle()
 
             return nodes_to_remove
-        return Operator(operator, name=4)
+        return Operator(operator, name=3)
 
     def random_route(self):
         """
@@ -237,4 +237,4 @@ class RemoveOperators:
                 nodes_to_remove.extend(additional_nodes_to_remove)
 
             return nodes_to_remove
-        return Operator(operator, name=5)
+        return Operator(operator, name=4)

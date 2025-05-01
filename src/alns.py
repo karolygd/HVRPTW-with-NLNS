@@ -3,15 +3,17 @@ import math
 from src.operators.remove_operators import RemoveOperators
 from src.operators.insertion_operators import InsertionOperators
 from src.alns_components.adaptive_layer import AdaptiveOperatorSelector
+from src.alns_components.neural_operator_selector.nn_op_selector import NeuralOperatorSelector
 from src.alns_components.adaptive_removal import AdaptiveRemovalManager
 #from src.alns_components.local_search import LocalSearch
 from src.alns_components.setting_temperature import SettingTemperature
 from src.helpers.features import EngFeatures
+import pandas as pd
 import logging
 
 # --- Configure the logging:
 logging.basicConfig(
-    filename='training_alns_iterations.log',
+    filename='test_benchmark_alns.log',
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
@@ -50,6 +52,7 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
     # --- Define the adaptive layer: operator selector and number of customers to remove
     number_of_customers = len(remove_operators.vertices)
     aos = AdaptiveOperatorSelector(remove_operators_list, insert_operators_list)
+    nos = NeuralOperatorSelector(remove_operators_list, insert_operators_list)
     adaptive_removal = AdaptiveRemovalManager(number_of_customers)
 
     # --- initialize features needed
@@ -57,7 +60,7 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
     n_accepted_solutions = e_feature.recent_acceptances(segment_size)
     prev_remove_operator = None
     prev_insert_operator = None
-    prev_features = {"delta_last_improv": 0, "acceptance_ratio": 0, "i_last_improv": 0}
+    prev_features = {"rel_delta_last_improv": 0, "acceptance_ratio": 0, "i_last_improv": 0}
     i_last_improv = 0
     delta_last_improv = 0
     for i in range(1, number_of_iterations+1):
@@ -68,18 +71,12 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
         # --- define input data for neural network
         nn_input_features = [
             i,
-            instance_type,
-            tw_spread,
-            operator_selection,
-            number_of_vertices_to_remove,
-            prev_features["delta_last_improv"],
             prev_features["acceptance_ratio"],
+            number_of_vertices_to_remove,
             prev_features["i_last_improv"],
-            prev_remove_operator,
-            prev_insert_operator,
             e_feature.route_imbalance(solution),
-            e_feature.capacity_utilization(solution),
-        ]
+            e_feature.capacity_utilization(solution)
+            ]
 
         success_remove_operators = []
         for operator in remove_operators_list:
@@ -88,17 +85,38 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
         for operator in insert_operators_list:
             success_insert_operators.append(operator.weight)
 
-        nn_input_features = nn_input_features + success_remove_operators + success_insert_operators
+        sign_features = [prev_features["rel_delta_last_improv"]]
+
+        cat_features = [
+            instance_type,
+            tw_spread,
+            1, #operator_selection, #todo:check the effect of changing this to 1 in next run
+            prev_remove_operator,
+            prev_insert_operator
+        ]
+
+        nn_input_features = nn_input_features + success_remove_operators + success_insert_operators + sign_features + cat_features
+        dict_features = {'1': nn_input_features}
         feature_log = f""
         for feature in nn_input_features:
             feature_log += f"{feature},"
+
+        col_names = ['iterations', 'acceptance_ratio', 'number_of_vertices_to_remove', 'i_last_improv',
+                     'route_imbalance', 'capacity_utilization', 'success_r_op_1', 'success_r_op_2', 'success_r_op_3',
+                     'success_r_op_4', 'success_r_op_5', 'success_i_op_1', 'success_i_op_2', 'success_i_op_3',
+                     'rel_delta_last_improv', 'instance_type', 'tw_spread', 'operator_selection_mechanism',
+                     'prev_remove_operator', 'prev_insert_operator']
+
+        X_predict = pd.DataFrame.from_dict(dict_features, orient='index', columns=col_names)
 
         # --- set insert and remove operators and apply to the solution:
         if operator_selection == 1:
             remove_operator, insert_operator = aos.roulete_wheel()  # or random selection
         else:
-            remove_operator, insert_operator = aos.random_selection()
+            #remove_operator, insert_operator = aos.random_selection()
             # Todo: here incorporate the neural network
+            remove_operator, insert_operator = nos.select_operator(X_predict)
+
         removed_customers = solution.apply_destroy_operator(remove_operator, num_customers_to_remove=number_of_vertices_to_remove)
         solution.apply_insert_operator(insert_operator, removed_customers) # check a way to return a solution
         new_cost = solution.get_cost()
@@ -106,7 +124,7 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
         # --- recalculate data for adaptive number of customers to remove
         adaptive_removal.update_mu(new_cost, best_cost, current_cost)
 
-            # Due to ablation analysis, local search will no,longer be used
+            # Due to ablation analysis local search will no longer be used
             # ls.apply_local_search(solution)
             # new_cost = solution.get_cost()
 

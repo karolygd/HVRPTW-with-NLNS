@@ -73,8 +73,7 @@ def print_solution(solution: Solution):
 #              "params_cooling_function", "params_init_temp", "params_final_temp"]
 # rd = RecordingData(file, headers_1)
 
-instances_to_run = ["RC2_2_1_100.txt", "RC2_2_2_100.txt", "RC2_2_3_100.txt", "RC2_2_4_100.txt", "RC2_2_5_100.txt", "RC2_2_6_100.txt",
-                    "RC2_2_7_100.txt", "RC2_2_8_100.txt", "RC2_2_9_100.txt"]
+instances_to_run = ["C101.txt", "C201.txt", "R101.txt", "R201.txt","RC101.txt", "RC201.txt"]
 parameter_set = {"params_accepted_score":1,
     "params_cooling_function":"exponential",
     "params_final_temp":41.6653632001,
@@ -82,6 +81,8 @@ parameter_set = {"params_accepted_score":1,
     "params_init_temp":2000,
     "params_iterations":2000,
     "params_local_best_score":4}
+
+results = {}
 
 i = 0
 for instance in instances_to_run:
@@ -92,14 +93,14 @@ for instance in instances_to_run:
     else:  # R: random instance
         instance_type = 1
 
-    tw_spread = instance[1]
+    #tw_spread = instance[1]
     try:
         tw_spread = int(instance[1])
     except:
         tw_spread = int(instance[2])
 
     instance_name = instance
-    global_context.global_instance = parse_reduced_instance(instance, vehicle_cost_structure='a')
+    global_context.global_instance = parse_problem_instance(instance, vehicle_cost_structure='a') # parse_reduced_instance(instance, vehicle_cost_structure='a')
 
     # --- Get initial solution ---
     initial_solution = savings_vrptw()
@@ -112,78 +113,7 @@ for instance in instances_to_run:
                          o1=parameter_set['params_global_best_score'], o2=parameter_set['params_local_best_score'], o3=parameter_set['params_accepted_score'])
     end_time = time.time()
     duration = end_time - start_time
+    results[instance_name] = [alns_solution.get_cost(), duration]
     print("done with alns run ")
-    #
-    # log_dict = {
-    #     "Instance": instance,
-    #     "Execution Time (s)": duration,
-    #     "Best Cost": alns_solution.get_cost(),
-    #     "params_iterations": parameter_set['params_iterations'],
-    #     "params_global_best_score": parameter_set['params_global_best_score'],
-    #     "params_local_best_score": parameter_set['params_local_best_score'],
-    #     "params_accepted_score": parameter_set['params_accepted_score'],
-    #     "params_cooling_function": parameter_set['params_cooling_function'],
-    #     "params_init_temp": parameter_set['params_init_temp'],
-    #     "params_final_temp": parameter_set['params_final_temp']
-    #     }
-    #
-    # rd.log_iteration(iteration= i, **log_dict)
-    # print("done writing data")
-    # print(log_dict)
-    # i+=1
 
-"""
-# Debug destroy operators
-print("*** Removing customers ***")
-start_time = time.time()
-remove_operator = RemoveOperators().random_route()
-customers_removed = initial_solution.apply_destroy_operator(remove_operator, num_customers_to_remove=10)
-removed_ = [node.route_id for node in customers_removed]
-removed_route_ids = set(removed_)
-print("removed routes_ids: ", removed_route_ids)
-cost_removed = 0
-total_distance = 0
-# Need to recalculate the costs ALWAYS
-for route in initial_solution.routes:
-    # route.calculate_total_cost() 
-    total_distance += route.total_distance()
-    # print(route.nodes, "-", route.cost)
-    cost_removed += route.cost
-    if route.nodes[-1].route_id in removed_route_ids:
-        print(route)
-print("cost of initial_solution: ", cost_removed)
-print("total distance: ", total_distance)
-print("customers_removed: ", customers_removed)
-removed_customers = [customer.id for customer in customers_removed]
-print("removed_customers: ", removed_customers)
-print_solution(initial_solution)
-end_time = time.time()
-duration = end_time - start_time
-print(f"The removal process took {duration:.4f} seconds.")
-print("")
-
-
-print("*** Reinserting customers ***")
-start_time = time.time()
-insert_operator = InsertionOperators().customer_with_highest_position_regret_best_position()
-initial_solution.apply_insert_operator(insert_operator, customers_removed)
-cost_inserted = 0
-total_distance = 0
-# routes_changed = set()
-for route in initial_solution.routes:
-    # route.calculate_total_cost()
-    # print(route.nodes, "-", route.cost)
-    cost_inserted += route.cost
-    total_distance += route.total_distance()
-    for node in route.nodes:
-        if node.id in removed_customers:
-            print(route)
-print("cost of new_solution: ", cost_inserted)
-print("total distance: ", total_distance)
-# print(routes_changed)
-print_solution(initial_solution)
-end_time = time.time()
-duration = end_time - start_time
-print(f"The insertion process took {duration:.4f} seconds.")
-"""
-# draw_routes(alns_solution.routes, instance_name)
+print(results)

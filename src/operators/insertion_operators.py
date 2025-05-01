@@ -85,14 +85,14 @@ class InsertionOperators:
             # Clear the cache since the solution changed
             self.insertion_cache.clear()
             return solution
-        return Operator(operator, name=1)
+        return Operator(operator, name=0)
 
     def customer_with_highest_position_regret_best_position(self, k: int = 2):
         """
         Inserts customers based on the highest position regret value.
         :param k: Number of top insertion costs to consider for regret calculation (default is 2).
         """
-        op_name = k
+        op_name = k-1 #k starts at 2, k=2->op=1, k=3->op=2
         def operator(solution: Solution, removed_customers:list[Node]):
             """
             :param solution: list of routes
