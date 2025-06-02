@@ -33,7 +33,7 @@ class SettingTemperature:
         if self.update_function == "linear":
             self.t = self.t - (self.t_start - self.t_end)/self.iterations
         elif self.update_function == "exponential":
-            self.t = self.t * ((self.t_end/self.t_start)**(1/self.iterations))
+            self.t = self.t * (self.t_end/self.t_start)**(1/self.iterations)
         return round(self.t, 4)
 
 

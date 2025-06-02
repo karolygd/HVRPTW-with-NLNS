@@ -24,9 +24,3 @@ class EngFeatures:
             route_utilization.append(route.demand()/self.vehicles[route.vehicle].capacity)
 
         return statistics.mean(route_utilization)
-
-    def _steps_improvements(self, cost):
-        pass
-
-    def immediate_long_term_improvement(self):
-        pass

@@ -1,0 +1,361 @@
+iteration,instance,run time,cost,components
+1,C101.txt,186.8515437,7882.800635,all components
+2,C101.txt,180.6698325,8123.794173,all components
+3,C101.txt,187.5520499,7916.184243,all components
+4,C101.txt,189.53701,7930.081568,all components
+5,C101.txt,192.060519,7857.838295,all components
+6,C101.txt,186.3031931,8076.175202,all components
+7,C101.txt,173.4791429,7930.845873,all components
+8,C101.txt,155.6616595,8066.222197,all components
+9,C101.txt,146.5921669,8019.331638,all components
+10,C101.txt,177.3986053,8076.948067,all components
+1,R101.txt,208.4385152,4658.940832,all components
+2,R101.txt,219.8906622,4676.852614,all components
+3,R101.txt,199.399183,4520.820513,all components
+4,R101.txt,198.5432885,4708.099697,all components
+5,R101.txt,218.6305065,4691.213521,all components
+6,R101.txt,195.003546,4671.374629,all components
+7,R101.txt,188.4766679,4702.956802,all components
+8,R101.txt,183.470309,4712.204199,all components
+9,R101.txt,191.9115334,4722.105523,all components
+10,R101.txt,1188.738586,4683.697985,all components
+1,RC101.txt,193.2852602,5781.840294,all components
+2,RC101.txt,196.7075751,5819.036136,all components
+3,RC101.txt,367.316438,5678.100966,all components
+4,RC101.txt,214.0447266,5809.993618,all components
+5,RC101.txt,203.6520319,5676.549118,all components
+6,RC101.txt,219.2499633,5576.595976,all components
+7,RC101.txt,226.6564269,5802.840705,all components
+8,RC101.txt,230.5659754,5812.121286,all components
+9,RC101.txt,123.8086941,5673.624383,all components
+10,RC101.txt,119.4313283,5603.905098,all components
+1,C201.txt,115.3268802,5781.128912,all components
+2,C201.txt,112.3947003,5696.437219,all components
+3,C201.txt,111.7130032,5696.848955,all components
+4,C201.txt,108.3495455,5755.317247,all components
+5,C201.txt,103.9433866,5704.628028,all components
+6,C201.txt,109.3054688,5695.774317,all components
+7,C201.txt,120.2766945,5763.959213,all components
+8,C201.txt,105.6542733,5701.316258,all components
+9,C201.txt,121.1814799,5706.674386,all components
+10,C201.txt,103.5393839,5695.455378,all components
+1,R201.txt,173.767952,3552.778641,all components
+2,R201.txt,176.6038961,3545.790281,all components
+3,R201.txt,173.5286937,3550.555004,all components
+4,R201.txt,169.9890926,3550.227796,all components
+5,R201.txt,169.0672798,3575.396378,all components
+6,R201.txt,175.6085951,3586.201205,all components
+7,R201.txt,174.2450254,3620.276298,all components
+8,R201.txt,162.8439088,3668.374202,all components
+9,R201.txt,156.1815808,3535.581801,all components
+10,R201.txt,163.1431417,3590.366816,all components
+1,RC201.txt,207.9360602,4871.078963,all components
+2,RC201.txt,209.2617116,5098.807843,all components
+3,RC201.txt,212.7818704,4934.524258,all components
+4,RC201.txt,215.3472118,5012.3846,all components
+5,RC201.txt,219.0889215,5111.070106,all components
+6,RC201.txt,242.4942813,4977.824088,all components
+7,RC201.txt,227.3895428,5111.54784,all components
+8,RC201.txt,229.0336516,5131.121475,all components
+9,RC201.txt,222.0640013,4845.764312,all components
+10,RC201.txt,228.4871159,4983.862786,all components
+1,C106.txt,134.9323649,8309.853223,all components
+2,C106.txt,138.7367013,8180.476264,all components
+3,C106.txt,130.6950152,8242.85149,all components
+4,C106.txt,141.475678,8254.321792,all components
+5,C106.txt,140.1320994,8073.846977,all components
+6,C106.txt,143.3869908,8021.742538,all components
+7,C106.txt,136.0079043,8120.615589,all components
+8,C106.txt,148.1923618,8231.224552,all components
+9,C106.txt,129.986093,8191.59077,all components
+10,C106.txt,144.1711681,8010.102897,all components
+1,R106.txt,233.7325695,4576.744666,all components
+2,R106.txt,240.0073214,4620.574091,all components
+3,R106.txt,258.0818658,4706.916031,all components
+4,R106.txt,254.5139663,4572.562751,all components
+5,R106.txt,234.7477572,4547.530905,all components
+6,R106.txt,249.7263308,4618.891992,all components
+7,R106.txt,242.1894677,4685.42762,all components
+8,R106.txt,250.6895466,4535.19339,all components
+9,R106.txt,238.1102977,4662.223733,all components
+10,R106.txt,228.0608637,4652.61693,all components
+1,RC106.txt,179.3423893,5575.182028,all components
+2,RC106.txt,165.8442533,5604.78071,all components
+3,RC106.txt,158.0395348,5451.704616,all components
+4,RC106.txt,155.9695816,5649.51092,all components
+5,RC106.txt,160.1958215,5543.124342,all components
+6,RC106.txt,166.0455425,5646.757044,all components
+7,RC106.txt,161.6570878,5642.845497,all components
+8,RC106.txt,162.5991929,5646.944984,all components
+9,RC106.txt,169.1666276,5607.139128,all components
+10,RC106.txt,154.121515,5636.63201,all components
+1,C206.txt,272.3958297,5698.023522,all components
+2,C206.txt,249.0532546,5698.750728,all components
+3,C206.txt,270.6283839,5778.189054,all components
+4,C206.txt,285.2827671,5713.259964,all components
+5,C206.txt,254.7791765,5697.071342,all components
+6,C206.txt,247.354578,5701.644993,all components
+7,C206.txt,274.1054413,5715.231785,all components
+8,C206.txt,242.8713419,5740.040743,all components
+9,C206.txt,266.8052211,5738.842208,all components
+10,C206.txt,235.5324881,5697.023108,all components
+1,R206.txt,548.6236236,3265.502692,all components
+2,R206.txt,529.4321864,3555.71112,all components
+3,R206.txt,520.2294185,3280.956744,all components
+4,R206.txt,546.4723954,3271.267736,all components
+5,R206.txt,509.980983,3390.629122,all components
+6,R206.txt,506.6369398,3545.955097,all components
+7,R206.txt,488.2137232,3357.657866,all components
+8,R206.txt,494.8943474,3312.430667,all components
+9,R206.txt,507.6997716,3291.647257,all components
+10,R206.txt,560.4271886,3342.950223,all components
+1,RC206.txt,384.5912704,4816.667684,all components
+2,RC206.txt,389.6684413,4645.753099,all components
+3,RC206.txt,403.8292177,4797.228782,all components
+4,RC206.txt,401.6570706,4826.667462,all components
+5,RC206.txt,397.4394598,4963.806633,all components
+6,RC206.txt,373.9968815,4837.426903,all components
+7,RC206.txt,406.8709745,4837.346013,all components
+8,RC206.txt,377.2177448,4712.627399,all components
+9,RC206.txt,387.032104,4838.351932,all components
+10,RC206.txt,371.5082104,4968.527801,all components
+1,C101.txt,140.6389933,7870.661038,no local search
+2,C101.txt,121.0448253,7770.717795,no local search
+3,C101.txt,98.27423501,7889.577653,no local search
+4,C101.txt,87.54924917,7844.538125,no local search
+5,C101.txt,86.34461761,7606.430596,no local search
+6,C101.txt,78.15613246,7777.574194,no local search
+7,C101.txt,95.09759736,7982.080497,no local search
+8,C101.txt,97.25887299,7745.052451,no local search
+9,C101.txt,135.0057538,7956.892725,no local search
+10,C101.txt,113.7624869,7874.630447,no local search
+1,R101.txt,113.5568652,4622.848544,no local search
+2,R101.txt,110.9339914,4626.752086,no local search
+3,R101.txt,113.690141,4669.519313,no local search
+4,R101.txt,114.2755337,4586.473843,no local search
+5,R101.txt,117.5787983,4585.550651,no local search
+6,R101.txt,117.2985847,4574.168633,no local search
+7,R101.txt,119.4359224,4627.075541,no local search
+8,R101.txt,120.8016276,4659.883966,no local search
+9,R101.txt,119.6728051,4662.244213,no local search
+10,R101.txt,122.0911372,4666.074724,no local search
+1,RC101.txt,113.8960083,5765.69019,no local search
+2,RC101.txt,112.4753189,5689.008796,no local search
+3,RC101.txt,105.4345033,5597.376964,no local search
+4,RC101.txt,106.2340322,5640.365132,no local search
+5,RC101.txt,113.7162595,5676.329371,no local search
+6,RC101.txt,113.6443205,5736.19961,no local search
+7,RC101.txt,117.1293154,5693.729328,no local search
+8,RC101.txt,111.281646,5585.249847,no local search
+9,RC101.txt,114.2068648,5632.268585,no local search
+10,RC101.txt,114.8434308,5760.223481,no local search
+1,C201.txt,94.49407005,5714.773953,no local search
+2,C201.txt,95.23925138,5700.882709,no local search
+3,C201.txt,84.06061482,5724.27149,no local search
+4,C201.txt,89.41994596,5700.882709,no local search
+5,C201.txt,87.43493319,5702.264735,no local search
+6,C201.txt,105.5928643,5706.132885,no local search
+7,C201.txt,89.84920788,5706.132885,no local search
+8,C201.txt,96.97230768,5701.316258,no local search
+9,C201.txt,97.01805162,5695.021829,no local search
+10,C201.txt,91.51917338,5716.864893,no local search
+1,R201.txt,157.6321189,3547.526348,no local search
+2,R201.txt,138.8417637,3658.633561,no local search
+3,R201.txt,151.0086868,3630.249219,no local search
+4,R201.txt,157.5381575,3546.416524,no local search
+5,R201.txt,166.7732849,3653.857717,no local search
+6,R201.txt,163.2392936,3585.015577,no local search
+7,R201.txt,164.3748326,3646.934766,no local search
+8,R201.txt,169.6358767,3605.577352,no local search
+9,R201.txt,149.1177235,3584.549381,no local search
+10,R201.txt,167.0251105,3604.266105,no local search
+1,RC201.txt,208.3445754,4851.422841,no local search
+2,RC201.txt,205.676599,4922.953054,no local search
+3,RC201.txt,202.9013503,4728.899704,no local search
+4,RC201.txt,218.5025315,4809.546714,no local search
+5,RC201.txt,229.548003,4736.963408,no local search
+6,RC201.txt,210.8220904,4918.738108,no local search
+7,RC201.txt,239.7190886,4824.194848,no local search
+8,RC201.txt,231.2610734,4942.429839,no local search
+9,RC201.txt,211.2151308,4974.310079,no local search
+10,RC201.txt,215.4018109,4787.223576,no local search
+1,C106.txt,150.9870019,8001.874458,no local search
+2,C106.txt,142.519176,8050.536899,no local search
+3,C106.txt,150.6847937,7998.335833,no local search
+4,C106.txt,147.0148568,7914.437739,no local search
+5,C106.txt,152.1973026,7883.591099,no local search
+6,C106.txt,127.9335232,8033.340935,no local search
+7,C106.txt,130.4947298,7981.325172,no local search
+8,C106.txt,124.1457274,7898.245079,no local search
+9,C106.txt,119.7742658,7944.492193,no local search
+10,C106.txt,133.4498975,7856.16115,no local search
+1,R106.txt,214.6587265,4474.105387,no local search
+2,R106.txt,207.539238,4424.319224,no local search
+3,R106.txt,222.8583648,4535.988339,no local search
+4,R106.txt,223.7306485,4463.96468,no local search
+5,R106.txt,218.7215149,4392.688051,no local search
+6,R106.txt,217.8116732,4565.009213,no local search
+7,R106.txt,231.1595581,4594.306679,no local search
+8,R106.txt,257.5772667,4534.533969,no local search
+9,R106.txt,241.5378268,4553.24681,no local search
+10,R106.txt,250.7396841,4472.430567,no local search
+1,RC106.txt,149.0448768,5483.519697,no local search
+2,RC106.txt,170.2369406,5573.097204,no local search
+3,RC106.txt,156.8522618,5680.848918,no local search
+4,RC106.txt,143.2373536,5666.592551,no local search
+5,RC106.txt,136.6705577,5616.628926,no local search
+6,RC106.txt,131.8125393,5480.972069,no local search
+7,RC106.txt,132.9950864,5484.028712,no local search
+8,RC106.txt,130.9284904,5417.465353,no local search
+9,RC106.txt,131.7822819,5475.049723,no local search
+10,RC106.txt,130.7053742,5628.112741,no local search
+1,C206.txt,218.2976198,5697.007308,no local search
+2,C206.txt,242.9570823,5693.248177,no local search
+3,C206.txt,226.125937,5699.005509,no local search
+4,C206.txt,218.4995182,5730.070814,no local search
+5,C206.txt,230.3101089,5747.808788,no local search
+6,C206.txt,234.7282546,5701.436467,no local search
+7,C206.txt,251.7229695,5700.117556,no local search
+8,C206.txt,220.1384728,5736.123101,no local search
+9,C206.txt,243.5609653,5696.868094,no local search
+10,C206.txt,234.5918202,5700.878146,no local search
+1,R206.txt,466.8635988,3299.193316,no local search
+2,R206.txt,424.8796542,3240.319803,no local search
+3,R206.txt,449.1705089,3253.339407,no local search
+4,R206.txt,445.5007336,3290.404496,no local search
+5,R206.txt,444.4461877,3335.179432,no local search
+6,R206.txt,425.0276241,3229.329436,no local search
+7,R206.txt,427.3159568,3304.919567,no local search
+8,R206.txt,616.0438924,3289.483114,no local search
+9,R206.txt,589.6135082,3235.915172,no local search
+10,R206.txt,552.019048,3222.33649,no local search
+1,RC206.txt,538.601531,4790.193622,no local search
+2,RC206.txt,507.9282212,4582.340288,no local search
+3,RC206.txt,524.7719884,4499.843289,no local search
+4,RC206.txt,507.9440229,4649.78329,no local search
+5,RC206.txt,506.0002012,4550.465208,no local search
+6,RC206.txt,478.4444172,4603.75679,no local search
+7,RC206.txt,522.901401,4613.14573,no local search
+8,RC206.txt,498.9588401,4806.864148,no local search
+9,RC206.txt,485.1696918,4654.569567,no local search
+10,RC206.txt,481.3218253,4558.207568,no local search
+1,C101.txt,154.7344735,8118.872845,no adaptive customer removal
+2,C101.txt,167.7512224,8087.314988,no adaptive customer removal
+3,C101.txt,153.5951126,8061.881271,no adaptive customer removal
+4,C101.txt,143.0820313,7949.267473,no adaptive customer removal
+5,C101.txt,160.2404397,8140.895607,no adaptive customer removal
+6,C101.txt,166.1780555,8134.838279,no adaptive customer removal
+7,C101.txt,170.3646827,7949.640015,no adaptive customer removal
+8,C101.txt,162.4480889,7853.188159,no adaptive customer removal
+9,C101.txt,161.4417362,7906.380182,no adaptive customer removal
+10,C101.txt,161.5022466,7924.004204,no adaptive customer removal
+1,R101.txt,182.8598142,4706.243761,no adaptive customer removal
+2,R101.txt,178.4502842,4621.126125,no adaptive customer removal
+3,R101.txt,176.9926748,4669.467292,no adaptive customer removal
+4,R101.txt,187.2534211,4650.404695,no adaptive customer removal
+5,R101.txt,161.8176744,4714.408427,no adaptive customer removal
+6,R101.txt,173.2742457,4637.848381,no adaptive customer removal
+7,R101.txt,160.0760477,4674.123089,no adaptive customer removal
+8,R101.txt,167.9429944,4647.969709,no adaptive customer removal
+9,R101.txt,178.8166251,4698.375758,no adaptive customer removal
+10,R101.txt,165.1475558,4685.346814,no adaptive customer removal
+1,RC101.txt,164.757241,5716.006919,no adaptive customer removal
+2,RC101.txt,161.7537611,5782.588849,no adaptive customer removal
+3,RC101.txt,154.8837025,5726.48955,no adaptive customer removal
+4,RC101.txt,183.6051228,5770.304359,no adaptive customer removal
+5,RC101.txt,152.792264,5743.130658,no adaptive customer removal
+6,RC101.txt,168.6434386,5796.197655,no adaptive customer removal
+7,RC101.txt,157.2293642,5659.556017,no adaptive customer removal
+8,RC101.txt,163.6600273,5745.271104,no adaptive customer removal
+9,RC101.txt,159.0464199,5737.290752,no adaptive customer removal
+10,RC101.txt,157.3594143,5683.312925,no adaptive customer removal
+1,C201.txt,179.3381488,5706.903291,no adaptive customer removal
+2,C201.txt,180.6872261,5743.595959,no adaptive customer removal
+3,C201.txt,166.66536,5782.445173,no adaptive customer removal
+4,C201.txt,163.2271173,5704.77543,no adaptive customer removal
+5,C201.txt,174.3205421,5707.409728,no adaptive customer removal
+6,C201.txt,161.9430122,5744.009492,no adaptive customer removal
+7,C201.txt,165.3551085,5744.865799,no adaptive customer removal
+8,C201.txt,175.8009679,5704.700167,no adaptive customer removal
+9,C201.txt,169.9699371,5815.877311,no adaptive customer removal
+10,C201.txt,168.3922255,5701.316258,no adaptive customer removal
+1,R201.txt,2612.302199,3617.981058,no adaptive customer removal
+2,R201.txt,174.6872847,3627.164529,no adaptive customer removal
+3,R201.txt,177.6867921,3622.549526,no adaptive customer removal
+4,R201.txt,174.3948765,3564.65112,no adaptive customer removal
+5,R201.txt,169.1733189,3618.361022,no adaptive customer removal
+6,R201.txt,179.12342,3562.349611,no adaptive customer removal
+7,R201.txt,175.5155087,3667.043059,no adaptive customer removal
+8,R201.txt,165.2261815,3630.214588,no adaptive customer removal
+9,R201.txt,181.4446633,3588.644569,no adaptive customer removal
+10,R201.txt,162.2380297,3569.695342,no adaptive customer removal
+1,RC201.txt,247.3833067,4973.349883,no adaptive customer removal
+2,RC201.txt,210.1933537,5072.200164,no adaptive customer removal
+3,RC201.txt,164.3456907,5139.592587,no adaptive customer removal
+4,RC201.txt,202.6243474,5352.450135,no adaptive customer removal
+5,RC201.txt,195.3774395,4924.309011,no adaptive customer removal
+6,RC201.txt,190.1920321,5057.64981,no adaptive customer removal
+7,RC201.txt,200.1263204,5177.785272,no adaptive customer removal
+8,RC201.txt,197.5595984,5079.479918,no adaptive customer removal
+9,RC201.txt,185.9206564,5154.433043,no adaptive customer removal
+10,RC201.txt,197.5666041,4869.933578,no adaptive customer removal
+1,C106.txt,123.2397437,8165.206445,no adaptive customer removal
+2,C106.txt,113.8852413,8294.44796,no adaptive customer removal
+3,C106.txt,106.0165355,8331.79038,no adaptive customer removal
+4,C106.txt,119.6951909,8088.213598,no adaptive customer removal
+5,C106.txt,115.9805312,8327.330908,no adaptive customer removal
+6,C106.txt,133.3792114,8345.083061,no adaptive customer removal
+7,C106.txt,124.5648398,8106.078274,no adaptive customer removal
+8,C106.txt,126.008672,8058.84286,no adaptive customer removal
+9,C106.txt,116.2893052,8338.052222,no adaptive customer removal
+10,C106.txt,116.9162786,8145.193445,no adaptive customer removal
+1,R106.txt,183.3049264,4612.445509,no adaptive customer removal
+2,R106.txt,176.3336234,4628.591484,no adaptive customer removal
+3,R106.txt,175.9318285,4694.417061,no adaptive customer removal
+4,R106.txt,178.2188997,4561.608069,no adaptive customer removal
+5,R106.txt,173.4633644,4599.341213,no adaptive customer removal
+6,R106.txt,193.2844167,4576.26459,no adaptive customer removal
+7,R106.txt,197.6034279,4695.932418,no adaptive customer removal
+8,R106.txt,194.2989144,4572.164077,no adaptive customer removal
+9,R106.txt,191.288852,4573.326886,no adaptive customer removal
+10,R106.txt,200.1232779,4606.430359,no adaptive customer removal
+1,RC106.txt,145.7214112,5670.619636,no adaptive customer removal
+2,RC106.txt,141.6678109,5676.71489,no adaptive customer removal
+3,RC106.txt,139.6327641,5564.915935,no adaptive customer removal
+4,RC106.txt,144.8272953,5570.708929,no adaptive customer removal
+5,RC106.txt,151.6006849,5648.70102,no adaptive customer removal
+6,RC106.txt,138.2160227,5538.533582,no adaptive customer removal
+7,RC106.txt,130.1267462,5585.507604,no adaptive customer removal
+8,RC106.txt,122.2605524,5674.449893,no adaptive customer removal
+9,RC106.txt,133.5304787,5581.605304,no adaptive customer removal
+10,RC106.txt,131.8397715,5613.260371,no adaptive customer removal
+1,C206.txt,227.8127837,6013.165713,no adaptive customer removal
+2,C206.txt,220.0668488,5721.027163,no adaptive customer removal
+3,C206.txt,203.2178786,5831.948864,no adaptive customer removal
+4,C206.txt,256.1364925,5777.631315,no adaptive customer removal
+5,C206.txt,278.4014189,5784.54754,no adaptive customer removal
+6,C206.txt,276.2012424,5765.947782,no adaptive customer removal
+7,C206.txt,277.6571927,6129.058121,no adaptive customer removal
+8,C206.txt,256.4967518,5707.70113,no adaptive customer removal
+9,C206.txt,311.4981809,5711.004804,no adaptive customer removal
+10,C206.txt,298.1788075,5756.495077,no adaptive customer removal
+1,R206.txt,579.9832547,3306.904448,no adaptive customer removal
+2,R206.txt,450.2576602,3535.67358,no adaptive customer removal
+3,R206.txt,488.0772119,3308.083308,no adaptive customer removal
+4,R206.txt,459.2370269,3366.027666,no adaptive customer removal
+5,R206.txt,452.4613488,3490.697585,no adaptive customer removal
+6,R206.txt,448.8641152,3338.736689,no adaptive customer removal
+7,R206.txt,491.0523822,3325.968749,no adaptive customer removal
+8,R206.txt,467.3258915,3623.986359,no adaptive customer removal
+9,R206.txt,503.425822,3548.767413,no adaptive customer removal
+10,R206.txt,548.1633074,3604.527472,no adaptive customer removal
+1,RC206.txt,388.8130836,4962.274592,no adaptive customer removal
+2,RC206.txt,375.0706112,5081.69323,no adaptive customer removal
+3,RC206.txt,304.8441832,4786.931536,no adaptive customer removal
+4,RC206.txt,336.7115161,4868.340793,no adaptive customer removal
+5,RC206.txt,338.4942102,4789.770501,no adaptive customer removal
+6,RC206.txt,370.8926024,5007.864155,no adaptive customer removal
+7,RC206.txt,374.7857339,4996.467092,no adaptive customer removal
+8,RC206.txt,386.0167687,4918.558307,no adaptive customer removal
+9,RC206.txt,345.0028124,4880.773636,no adaptive customer removal
+10,RC206.txt,334.6310699,4963.638939,no adaptive customer removal

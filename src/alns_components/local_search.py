@@ -90,7 +90,7 @@ class LocalSearch:
                 i_latest_arrival = self.vertices[i.id].latest_start
                 _neighborhood = [j for route in self.routes if route.id != route_1.id for j in route.nodes[1:-1]
                                  if i_earliest_arrival <= route.nodes[j.position-1].t_i + self.vertices[route.nodes[j.position-1].id].service_time +
-                                 self.edges[(route.nodes[j.position-1].id, i.id)].distance <= i_latest_arrival] #todo: to do neighborhood check here, I would need to do it with the predecessor of j and predecessor of i
+                                 self.edges[(route.nodes[j.position-1].id, i.id)].distance <= i_latest_arrival]
                 neighborhood = self._order_by_lowest_distance(i, _neighborhood)
                 #print(f"i: {i.id}")
                 #print(f"_neighborhood: {_neighborhood}")

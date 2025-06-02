@@ -11,12 +11,12 @@ from src.helpers.features import EngFeatures
 import pandas as pd
 import logging
 
-# --- Configure the logging:
-logging.basicConfig(
-    filename='test_benchmark_alns.log',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+# # --- Configure the logging:
+# logging.basicConfig(
+#     filename='alns_iterations.log',
+#     level=logging.INFO
+# )
+# logger = logging.getLogger(__name__)
 
 def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterations: int, operator_selection:int,
          h_start, h_end, temp_update_func, segment_size:int, o1: float, o2: float, o3: float):
@@ -60,7 +60,7 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
     n_accepted_solutions = e_feature.recent_acceptances(segment_size)
     prev_remove_operator = None
     prev_insert_operator = None
-    prev_features = {"rel_delta_last_improv": 0, "acceptance_ratio": 0, "i_last_improv": 0}
+    prev_features = {"delta_last_improv": 0.0, "acceptance_ratio": 0.0, "i_last_improv": 0}
     i_last_improv = 0
     delta_last_improv = 0
     for i in range(1, number_of_iterations+1):
@@ -85,18 +85,19 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
         for operator in insert_operators_list:
             success_insert_operators.append(operator.weight)
 
-        sign_features = [prev_features["rel_delta_last_improv"]]
+        sign_features = [prev_features["delta_last_improv"]]
 
         cat_features = [
             instance_type,
             tw_spread,
-            1, #operator_selection, #todo:check the effect of changing this to 1 in next run
+            1, #operator_selection, #pass as 1 when using nn
             prev_remove_operator,
             prev_insert_operator
         ]
 
         nn_input_features = nn_input_features + success_remove_operators + success_insert_operators + sign_features + cat_features
         dict_features = {'1': nn_input_features}
+
         feature_log = f""
         for feature in nn_input_features:
             feature_log += f"{feature},"
@@ -104,7 +105,7 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
         col_names = ['iterations', 'acceptance_ratio', 'number_of_vertices_to_remove', 'i_last_improv',
                      'route_imbalance', 'capacity_utilization', 'success_r_op_1', 'success_r_op_2', 'success_r_op_3',
                      'success_r_op_4', 'success_r_op_5', 'success_i_op_1', 'success_i_op_2', 'success_i_op_3',
-                     'rel_delta_last_improv', 'instance_type', 'tw_spread', 'operator_selection_mechanism',
+                     'delta_last_improv', 'instance_type', 'tw_spread', 'operator_selection_mechanism',
                      'prev_remove_operator', 'prev_insert_operator']
 
         X_predict = pd.DataFrame.from_dict(dict_features, orient='index', columns=col_names)
@@ -113,8 +114,8 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
         if operator_selection == 1:
             remove_operator, insert_operator = aos.roulete_wheel()  # or random selection
         else:
-            #remove_operator, insert_operator = aos.random_selection()
-            # Todo: here incorporate the neural network
+            # remove_operator, insert_operator = aos.random_selection()
+            # Incorporate the neural network:
             remove_operator, insert_operator = nos.select_operator(X_predict)
 
         removed_customers = solution.apply_destroy_operator(remove_operator, num_customers_to_remove=number_of_vertices_to_remove)
@@ -132,15 +133,7 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
 
         delta_cost = new_cost - current_cost
         relative_delta_cost = delta_cost/current_cost
-        if delta_cost < 0:
-            accept_prob = 1.0
-        else:
-            exponent = -delta_cost / temperature
-            if abs(exponent) > 700:
-                accept_prob = 0.0
-            else:
-                accept_prob = math.exp(-delta_cost / temperature)
-        if delta_cost < 0 or random.random() < math.exp(accept_prob):
+        if delta_cost < 0 or random.random() < math.exp(-(delta_cost/temperature)): #before: acceptance prob
             n_accepted_solutions.append(1)
             current_solution = solution.copy()
             current_cost = new_cost
@@ -185,6 +178,7 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
             solution = current_solution.copy()
             remove_operator.update_score()
             insert_operator.update_score()
+            #print(f"not accepted solution with delta {delta_cost}, temp: {temperature}, iteration: {i}, n_accepted_solutions: {n_accepted_solutions}")
 
         # --- Update the temperature:
         temperature = sa_temp.update_temperature()
@@ -195,16 +189,16 @@ def alns(instance_type: int, tw_spread: int, initial_solution, number_of_iterati
             # after the new weights have been calculated, the score and frequency for the new segment are re-initialized
             aos.initialize_weights()
 
-        # --- Get output features and log them
-        output = f"{delta_cost}, {new_cost}, {remove_operator.name}, {insert_operator.name}"
-        feature_log += output
+        # # --- Get output features and log them
+        # output = f"{delta_cost}, {new_cost}, {remove_operator.name}, {insert_operator.name}"
+        # feature_log += output
 
-        logger.info(feature_log)
+        #logger.info(feature_log)
 
         # --- Get and store features for the next iteration
         acceptance_ratio = sum(n_accepted_solutions) / len(n_accepted_solutions)
 
-        prev_features["rel_delta_last_improv"] = delta_last_improv #changed variable name to fit new df
+        prev_features["delta_last_improv"] = delta_last_improv #changed variable name to fit new df
         prev_features["acceptance_ratio"] = acceptance_ratio
         prev_features["i_last_improv"] = i_last_improv
         prev_remove_operator = remove_operator.name

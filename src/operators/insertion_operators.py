@@ -85,7 +85,7 @@ class InsertionOperators:
             # Clear the cache since the solution changed
             self.insertion_cache.clear()
             return solution
-        return Operator(operator, name=0)
+        return Operator(operator, name="0")
 
     def customer_with_highest_position_regret_best_position(self, k: int = 2):
         """
@@ -144,17 +144,11 @@ class InsertionOperators:
                     # Clear the cache since the solution changed
                     self.insertion_cache.clear()
                 else:
-                    # print(" ... 2 Creating new route for: ")
-                    # print(removed_customers)
                     solution.create_new_route(removed_customers[0])
-                    # print(removed_customers[0])
                     removed_customers.remove(removed_customers[0])
-                    # print("...")
-                    # print("-- new route existing in solution? ", solution)
-                    # raise ValueError("No feasible insertion found for remaining customers.")
 
             return solution
-        return Operator(operator, name=op_name)
+        return Operator(operator, name=str(op_name))
 
 
 

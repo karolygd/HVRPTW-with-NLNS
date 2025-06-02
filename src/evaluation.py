@@ -210,7 +210,6 @@ class EvaluateRoute:
                 return False
         return True
 
-    # todo: evaluate if used:
     def is_feasible(self):
         if self.time_window_feasibility() and self.total_demand() <= self.max_vehicle_capacity:
             return True

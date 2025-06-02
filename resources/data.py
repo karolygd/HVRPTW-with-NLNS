@@ -144,9 +144,3 @@ def parse_reduced_instance(instance_name: str, vehicle_cost_structure: str):
         vehicles.append(vehicle)
 
     return Instance(name= instance_name[:-3], vertices=vertices, edges=edge_dict, vehicles=vehicles)
-# data = Data("R101.txt").get_instance()
-# print(data)
-
-#instance = ReducedData("C1_2_1_100.txt").get_instance()
-# instance_name = "C1_2_1_100.txt"
-# parse_reduced_instance(instance_name, vehicle_cost_structure='a')

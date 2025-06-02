@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import pandas as pd
 import joblib
@@ -41,7 +42,7 @@ class ALNSDataset(Dataset):
         return self.X[idx], self.d_idx[idx], self.i_idx[idx], self.y[idx]
 
 class OperatorSelectionNet(nn.Module):
-    def __init__(self, input_dim, hidden_dim=128, num_destroy=5, num_insert=3, p_drop=0.2):
+    def __init__(self, input_dim, hidden_dim=128, hidden_dim_2=128, num_destroy=5, num_insert=3, p_drop=0.3):
         super(OperatorSelectionNet, self).__init__()
 
         # shared backbone
@@ -49,19 +50,47 @@ class OperatorSelectionNet(nn.Module):
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
             nn.Dropout(p_drop),
-            nn.Linear(hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim, hidden_dim_2),
             nn.ReLU(),
             nn.Dropout(p_drop)
         )
 
         # task-specific heads
-        self.destroy_head = nn.Linear(hidden_dim, num_destroy)
-        self.insert_head = nn.Linear(hidden_dim, num_insert)
+        self.destroy_head = nn.Linear(hidden_dim_2, num_destroy)
+        self.insert_head = nn.Linear(hidden_dim_2, num_insert)
 
     def forward(self, x):
         # Pass input through shared layers
         x = self.backbone(x)
         return self.destroy_head(x), self.insert_head(x)
+
+class SynergyOperatorSelectionNet(nn.Module):
+    def __init__(self, input_dim, hidden_dim=128, num_destroy=5, num_insert=3, p_drop=0.5):
+        super().__init__()
+        self.num_pairs = num_destroy * num_insert
+
+        # shared backbone
+        self.backbone = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.LeakyReLU(),
+            nn.Dropout(p_drop),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LeakyReLU(),
+            nn.Dropout(p_drop)
+        )
+
+        # task-specific heads
+        self.pairs_head = nn.Linear(hidden_dim, self.num_pairs)
+
+    def forward(self, x):
+        # Pass input through shared layers
+        h = self.backbone(x)
+        pairs = self.pairs_head(h)
+        return pairs
+
+    def synergies(self, x):
+        logits = self.forward(x)
+        return logits.view(-1, self.num_destroy, self.num_insert)
 
 # We need a partial MSE: only the chosen operator’s score in each head is compared to the target y. The other scores are not updated for that sample.
 def partial_mse_loss(destroy_scores, insert_scores, d_idx, r_idx, y):
@@ -89,6 +118,22 @@ def partial_mse_loss(destroy_scores, insert_scores, d_idx, r_idx, y):
     # Combine the losses, for example average them
     # (some might choose to weigh them differently, but 1:1 is common)
     loss = (loss_destroy.mean() + loss_insert.mean()) / 2.0
+
+    return loss
+
+def pairs_mse_loss(pair_scores, d_idx, r_idx, y, num_insert):
+    """
+    pair_scores:    (batch_size, d*i)
+    d_idx:          (batch_size,) chosen destroy operator indices
+    r_idx:          (batch_size,) chosen insert operator indices
+    y:              (batch_size,) improvement label
+
+    Returns scalar loss (MSE).
+    """
+    batch_size = pair_scores.size(0)
+    flat_idx = d_idx * num_insert + r_idx
+    pred = pair_scores[torch.arange(batch_size), flat_idx]
+    loss = F.mse_loss(pred, y)
 
     return loss
 
