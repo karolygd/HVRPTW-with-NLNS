@@ -7,8 +7,8 @@ This repository contains the implementation of an ALNS algorithm enhanced with a
 - resources: cointains files related to
   - datatypes: custom-made datatypes for the model (instance, node, operator, route, and solution)
   - instances: the benchmark instances and the training instances as .txt files
-  - instance-sampling: the function to reduce the 200 customer training instances
-  - training_data: data using for training the neural network model
+  - instance-sampling: the functions to reduce the 200 customer training instances
+  - training_data: data used to train the neural network model
 - results and logs: logs from the alns for analysis of the solutions
 - src: main functions for the alns algorithm
   - alns_components: the neural network and helper functions for its implementation, operator selection mechanisms, adaptive customer removal, local search operators, function to set and update the temperature for simmulated annealing.
